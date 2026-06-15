@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corenode - Auth</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://rebootcord.world/sdk/rebootui.js"></script>
 </head>
-<body class="bg-[#050505] text-white min-h-screen flex items-center justify-center">
+<body class="bg-[#050505] text-white min-h-screen flex items-center justify-center font-sans">
     <div class="max-w-5xl w-full grid grid-cols-2 gap-12 p-8">
         <div class="flex flex-col justify-center space-y-6">
             <h1 class="text-4xl font-bold">CORE<span class="text-cyan-400">NODE</span></h1>
@@ -14,8 +15,16 @@
             <p class="text-gray-400">Import custom AI models and deploy them in minutes.</p>
         </div>
         <div class="bg-[#0d0d0d] border border-white/[0.08] p-8 rounded-xl">
-            <h2 class="text-2xl font-bold mb-6">Sign In</h2>
-            <div class="space-y-4">
+            <div class="flex gap-6 text-sm font-semibold text-gray-500 border-b border-white/5 pb-4 mb-6">
+                <button id="tab-signup" class="text-cyan-400 border-b-2 border-cyan-400 pb-4 -mb-4 transition-all">Sign Up</button>
+                <button id="tab-login" class="hover:text-gray-300 pb-4 -mb-4 transition-all">Login</button>
+            </div>
+            <div id="view-signup" class="space-y-4">
+                <input type="text" id="signup-user" placeholder="Username" class="w-full bg-[#050505] border border-white/[0.08] p-3 rounded-lg outline-none focus:border-cyan-400">
+                <input type="password" id="signup-pass" placeholder="Password" class="w-full bg-[#050505] border border-white/[0.08] p-3 rounded-lg outline-none focus:border-cyan-400">
+                <button id="btn-signup" class="w-full bg-cyan-500 text-black font-bold p-3 rounded-lg hover:bg-cyan-400">Create Account</button>
+            </div>
+            <div id="view-login" class="space-y-4 hidden">
                 <input type="text" id="login-user" placeholder="Username" class="w-full bg-[#050505] border border-white/[0.08] p-3 rounded-lg outline-none focus:border-cyan-400">
                 <input type="password" id="login-pass" placeholder="Password" class="w-full bg-[#050505] border border-white/[0.08] p-3 rounded-lg outline-none focus:border-cyan-400">
                 <button id="btn-login" class="w-full bg-cyan-500 text-black font-bold p-3 rounded-lg hover:bg-cyan-400">Sign In</button>
