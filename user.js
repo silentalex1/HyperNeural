@@ -20,19 +20,37 @@ function toggleAuthView(isSignup) {
 if (tabSignup) tabSignup.addEventListener('click', () => toggleAuthView(true));
 if (tabLogin) tabLogin.addEventListener('click', () => toggleAuthView(false));
 
-async function auth(endpoint, u, p) {
-    if (!u.value || !p.value) return alert("Fill fields.");
-    const res = await fetch(endpoint, {
+async function doSignup() {
+    const u = document.getElementById('signup-user').value;
+    const e = document.getElementById('signup-email').value;
+    const p = document.getElementById('signup-pass').value;
+    if (!u || !e || !p) return alert("Fill fields.");
+    const res = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: u.value, password: p.value })
+        body: JSON.stringify({ username: u, email: e, password: p })
     });
     const d = await res.json();
     if (d.success) window.location.href = `/dashboard/${d.username}`;
     else alert(d.error);
 }
 
-document.getElementById('btn-signup').addEventListener('click', () => 
-    auth('/api/signup', document.getElementById('signup-user'), document.getElementById('signup-pass')));
-document.getElementById('btn-login').addEventListener('click', () => 
-    auth('/api/login', document.getElementById('login-user'), document.getElementById('login-pass')));
+async function doLogin() {
+    const u = document.getElementById('login-user').value;
+    const p = document.getElementById('login-pass').value;
+    if (!u || !p) return alert("Fill fields.");
+    const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p })
+    });
+    const d = await res.json();
+    if (d.success) window.location.href = `/dashboard/${d.username}`;
+    else alert(d.error);
+}
+
+const btnSignup = document.getElementById('btn-signup');
+const btnLogin = document.getElementById('btn-login');
+
+if (btnSignup) btnSignup.addEventListener('click', doSignup);
+if (btnLogin) btnLogin.addEventListener('click', doLogin);
