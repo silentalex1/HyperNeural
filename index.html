@@ -7,14 +7,34 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-[#030303] text-gray-200 font-sans min-h-screen relative">
-    <header class="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center border-b border-white/5">
-        <span class="text-xl font-bold text-white">CORE<span class="text-cyan-400">NODE</span></span>
-        <button onclick="window.location.href='/userauth'" class="px-6 py-2.5 text-sm font-semibold text-white bg-white/[0.03] border border-white/10 rounded-lg">Dashboard</button>
+<body class="bg-[#030303] text-gray-200 font-sans min-h-screen overflow-x-hidden relative">
+    <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+        <div id="glow-bg" class="absolute w-[600px] h-[600px] rounded-full bg-gradient-to-r from-cyan-500/10 to-cyan-800/10 blur-[150px]"></div>
+    </div>
+    <header class="relative z-10 max-w-7xl mx-auto px-6 py-6 flex justify-between items-center border-b border-white/5 backdrop-blur-xl bg-[#030303]/70">
+        <div class="flex items-center gap-3">
+            <span class="text-xl font-bold tracking-wider text-white">CORE<span class="text-cyan-400">NODE</span></span>
+        </div>
+        <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+            <a href="#" class="hover:text-cyan-400 transition-colors">AI Training</a>
+            <a href="#" class="hover:text-cyan-400 transition-colors">Bot Hosting</a>
+        </nav>
+        <button onclick="window.location.href='/userauth'" class="px-6 py-2.5 text-sm font-semibold text-white bg-white/[0.03] border border-white/10 rounded-lg hover:border-cyan-500/50">Open Dashboard</button>
     </header>
-    <main class="max-w-7xl mx-auto px-6 pt-24 text-center">
-        <h1 class="text-7xl font-black text-white mb-8">Train Smarter. Host Faster.</h1>
-        <button onclick="window.location.href='/userauth'" class="px-8 py-4 bg-cyan-500 text-black font-bold rounded-lg hover:bg-cyan-400 transition">Get Started Free</button>
+    <main class="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-32 text-center">
+        <h1 class="text-7xl font-black text-white mb-8">Train Smarter. Host Faster.<br><span class="text-cyan-400">Build complex projects.</span></h1>
+        <p class="text-gray-400 text-xl max-w-2xl mx-auto mb-10">Make your AI models smart with our fast setup. Host your Discord bots and apps 24/7 without lag.</p>
+        <button onclick="window.location.href='/userauth'" class="px-8 py-4 bg-cyan-500 text-black font-bold rounded-lg hover:bg-cyan-400">Get Started Free</button>
+        <section class="mt-32 grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div class="bg-white/[0.02] border border-white/5 p-8 rounded-2xl"><h3 class="text-2xl font-bold mb-3">Model Training</h3><p class="text-gray-400">Upload your data files easily. Use our powerful computers.</p></div>
+            <div class="bg-white/[0.02] border border-white/5 p-8 rounded-2xl"><h3 class="text-2xl font-bold mb-3">Bot Hosting</h3><p class="text-gray-400">Keep your Discord bots online all day and night.</p></div>
+        </section>
     </main>
+    <script>
+        const glowBg = document.getElementById('glow-bg');
+        document.addEventListener('mousemove', (e) => {
+            glowBg.style.transform = `translate(${e.clientX - 300}px, ${e.clientY - 300}px)`;
+        });
+    </script>
 </body>
 </html>
