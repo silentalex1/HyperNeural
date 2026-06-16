@@ -1,6 +1,3 @@
-RebootUI.init({ apiKey: "rc_live_98e0b88af3a42d043ef718879628b7fd42c3098f", feedback: false });
-RebootUI.page({ theme: "cyber", glass: true, fonts: false });
-
 const tabSignup = document.getElementById('tab-signup');
 const tabLogin = document.getElementById('tab-login');
 const viewSignup = document.getElementById('view-signup');
@@ -24,31 +21,18 @@ if (tabSignup) tabSignup.addEventListener('click', () => toggleAuthView(true));
 if (tabLogin) tabLogin.addEventListener('click', () => toggleAuthView(false));
 
 async function auth(endpoint, u, p) {
-    if (!u.value || !p.value) return alert("Please fill in all fields.");
+    if (!u.value || !p.value) return alert("Fill fields.");
     const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: u.value, password: p.value })
     });
     const d = await res.json();
-    if (d.success) {
-        window.location.href = `/dashboard/${d.username}`;
-    } else {
-        alert(d.error || "An error occurred.");
-    }
+    if (d.success) window.location.href = `/dashboard/${d.username}`;
+    else alert(d.error);
 }
 
-const btnSignup = document.getElementById('btn-signup');
-const btnLogin = document.getElementById('btn-login');
-
-if (btnSignup) {
-    btnSignup.addEventListener('click', () => 
-        auth('/api/signup', document.getElementById('signup-user'), document.getElementById('signup-pass')));
-}
-
-if (btnLogin) {
-    btnLogin.addEventListener('click', () => 
-        auth('/api/login', document.getElementById('login-user'), document.getElementById('login-pass')));
-}
-
-console.log("Auth system initialized and operational.");
+document.getElementById('btn-signup').addEventListener('click', () => 
+    auth('/api/signup', document.getElementById('signup-user'), document.getElementById('signup-pass')));
+document.getElementById('btn-login').addEventListener('click', () => 
+    auth('/api/login', document.getElementById('login-user'), document.getElementById('login-pass')));
