@@ -7,13 +7,15 @@ import crypto from 'crypto';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const dataFile = path.join(__dirname, 'users.json');
 
 if (!fs.existsSync(dataFile)) fs.writeFileSync(dataFile, JSON.stringify({}));
 
 app.use(express.json());
-app.use(express.static(__dirname));
+
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/userauth', (req, res) => res.sendFile(path.join(__dirname, 'user.html')));
 
 app.post('/api/signup', (req, res) => {
     const { username, password } = req.body;
@@ -45,6 +47,8 @@ app.get('/api/models/:username', (req, res) => {
     const users = JSON.parse(fs.readFileSync(dataFile));
     res.json(users[req.params.username]?.models || []);
 });
+
+app.use(express.static(__dirname));
 
 app.get('/dashboard/:username', (req, res) => {
     res.sendFile(path.join(__dirname, 'dashboard.html'));
