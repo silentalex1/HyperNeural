@@ -19,10 +19,10 @@ function slugify(name) {
 }
 
 app.post('/api/signup', (req, res) => {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
     const users = JSON.parse(fs.readFileSync(dataFile));
     if (users[username]) return res.status(400).json({ error: 'Exists' });
-    users[username] = { password, models: [] };
+    users[username] = { email, password, models: [] };
     fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
     res.json({ success: true, username });
 });
@@ -71,6 +71,53 @@ app.get('/api/model/:slug', (req, res) => {
         if (model) return res.json({ success: true, username, model });
     }
     res.status(404).json({ success: false, error: 'Not found' });
+});
+
+app.post('/api/models/:slug/request-delete', (req, res) => {
+    const users = JSON.parse(fs.readFileSync(dataFile));
+    const slug = req.params.slug;
+    let found = false;
+    for (const username in users) {
+        const model = users[username].models.find(m => m.slug === slug);
+        if (model) {
+            users[username].deleteCode = Math.floor(100000 + Math.random() * 900000).toString();
+            console.log(`Email sent to ${users[username].email} with code: ${users[username].deleteCode}`);
+            found = true;
+            break;
+        }
+    }
+    if (found) {
+        fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
+        return res.json({ success: true });
+    }
+    res.status(404).json({ error: 'Not found' });
+});
+
+app.post('/api/models/:slug/delete', (req, res) => {
+    const { code } = req.body;
+    const slug = req.params.slug;
+    const users = JSON.parse(fs.readFileSync(dataFile));
+    let deleted = false;
+    let uName = "";
+    for (const username in users) {
+        const index = users[username].models.findIndex(m => m.slug === slug);
+        if (index !== -1) {
+            if (users[username].deleteCode === code) {
+                users[username].models.splice(index, 1);
+                delete users[username].deleteCode;
+                deleted = true;
+                uName = username;
+            } else {
+                return res.status(400).json({ error: 'Invalid code' });
+            }
+            break;
+        }
+    }
+    if (deleted) {
+        fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
+        return res.json({ success: true, username: uName });
+    }
+    res.status(404).json({ error: 'Not found or invalid' });
 });
 
 app.use(express.static(__dirname));
