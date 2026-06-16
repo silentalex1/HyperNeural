@@ -1,40 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corenode platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-[#030303] text-gray-200 font-sans min-h-screen overflow-x-hidden relative">
-    <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
-        <div id="glow-bg" class="absolute w-[600px] h-[600px] rounded-full bg-gradient-to-r from-cyan-500/10 to-cyan-800/10 blur-[150px]"></div>
-    </div>
-    <header class="relative z-10 max-w-7xl mx-auto px-6 py-6 flex justify-between items-center border-b border-white/5 backdrop-blur-xl bg-[#030303]/70">
-        <div class="flex items-center gap-3">
-            <span class="text-xl font-bold tracking-wider text-white">CORE<span class="text-cyan-400">NODE</span></span>
-        </div>
-        <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
-            <a href="#" class="hover:text-cyan-400 transition-colors">AI Training</a>
-            <a href="#" class="hover:text-cyan-400 transition-colors">Bot Hosting</a>
+<body class="bg-[#050505] text-white flex min-h-screen">
+    <aside class="w-64 border-r border-white/[0.08] p-6">
+        <h1 class="text-xl font-bold mb-8 text-cyan-400">CORE<span>NODE</span></h1>
+        <button onclick="document.getElementById('upload-modal').classList.remove('hidden')" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-lg mb-8 hover:bg-cyan-400 transition">+ Upload your AI</button>
+        <nav class="space-y-4 text-sm text-gray-400">
+            <div onclick="window.location.reload()" class="cursor-pointer hover:text-white">Dashboard</div>
+            <div onclick="loadModels()" class="cursor-pointer hover:text-white">Models</div>
         </nav>
-        <button onclick="window.location.href='/userauth'" class="px-6 py-2.5 text-sm font-semibold text-white bg-white/[0.03] border border-white/10 rounded-lg hover:border-cyan-500/50">Open Dashboard</button>
-    </header>
-    <main class="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-32 text-center">
-        <h1 class="text-7xl font-black text-white mb-8">Train Smarter. Host Faster.<br><span class="text-cyan-400">Build complex projects.</span></h1>
-        <p class="text-gray-400 text-xl max-w-2xl mx-auto mb-10">Make your AI models smart with our fast setup. Host your Discord bots and apps 24/7 without lag.</p>
-        <button onclick="window.location.href='/userauth'" class="px-8 py-4 bg-cyan-500 text-black font-bold rounded-lg hover:bg-cyan-400">Get Started Free</button>
-        <section class="mt-32 grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <div class="bg-white/[0.02] border border-white/5 p-8 rounded-2xl"><h3 class="text-2xl font-bold mb-3">Model Training</h3><p class="text-gray-400">Upload your data files easily. Use our powerful computers.</p></div>
-            <div class="bg-white/[0.02] border border-white/5 p-8 rounded-2xl"><h3 class="text-2xl font-bold mb-3">Bot Hosting</h3><p class="text-gray-400">Keep your Discord bots online all day and night.</p></div>
-        </section>
+    </aside>
+    <main class="flex-1 p-10" id="content">
+        <h1 class="text-3xl font-bold mb-8" id="welcome-msg"></h1>
+        <div id="models-grid" class="grid grid-cols-1 gap-6"></div>
     </main>
+
+    <div id="upload-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#0d0d0d] border border-white/[0.08] p-8 rounded-xl w-full max-w-md">
+            <h2 class="text-xl font-bold mb-4">Upload Project</h2>
+            <input type="text" id="model-name" placeholder="Model Name" class="w-full bg-[#050505] border border-white/[0.08] p-3 mb-4 rounded-lg outline-none">
+            <label class="block w-full border-2 border-dashed border-gray-700 p-6 text-center cursor-pointer hover:border-cyan-500 mb-4">
+                <input type="file" id="file-input" webkitdirectory directory class="hidden">
+                <span class="text-gray-400">Click to select folder</span>
+            </label>
+            <button onclick="handleUpload()" class="w-full bg-cyan-500 text-black font-bold py-3 rounded-lg">Upload</button>
+        </div>
+    </div>
+
+    <div id="success-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4">
+        <div class="bg-[#0d0d0d] border border-white/[0.08] p-8 rounded-xl text-center max-w-lg">
+            <h2 id="congrats-text" class="text-xl font-bold mb-4"></h2>
+            <code id="api-link" class="block bg-black p-3 mb-4 rounded text-cyan-400 text-sm break-all"></code>
+            <button onclick="completeUpload()" class="bg-cyan-500 text-black px-6 py-2 rounded-lg font-bold">Complete</button>
+        </div>
+    </div>
+
+    <div id="notification" class="hidden fixed bottom-5 right-5 bg-cyan-500 text-black px-6 py-3 rounded-lg font-bold shadow-lg"></div>
+
     <script>
-        const glowBg = document.getElementById('glow-bg');
-        document.addEventListener('mousemove', (e) => {
-            glowBg.style.transform = `translate(${e.clientX - 300}px, ${e.clientY - 300}px)`;
-        });
+        const username = window.location.pathname.split('/').pop();
+        document.getElementById('welcome-msg').innerText = `Welcome, ${username}`;
+        
+        async function handleUpload() {
+            const name = document.getElementById('model-name').value;
+            const res = await fetch('/api/models/create', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ username, name })});
+            const data = await res.json();
+            document.getElementById('upload-modal').classList.add('hidden');
+            document.getElementById('congrats-text').innerText = `Congrats with your first AI model of ${name}`;
+            document.getElementById('api-link').innerText = `https://api.corenode.com/v1/models/${data.model.id}/generate`;
+            document.getElementById('success-modal').classList.remove('hidden');
+        }
+
+        function completeUpload() {
+            document.getElementById('success-modal').classList.add('hidden');
+            const note = document.getElementById('notification');
+            note.innerText = "Model has been created!";
+            note.classList.remove('hidden');
+            setTimeout(() => note.classList.add('hidden'), 3000);
+            loadModels();
+        }
+
+        async function loadModels() {
+            const res = await fetch(`/api/models/${username}`);
+            const models = await res.json();
+            document.getElementById('models-grid').innerHTML = models.map(m => `
+                <div class="bg-[#0d0d0d] border border-white/[0.08] p-6 rounded-xl hover:border-cyan-500/50 transition">
+                    <h3 class="text-xl font-bold">${m.name}</h3>
+                    <p class="text-green-500 text-sm mb-4">Status: ${m.status}</p>
+                    <code class="block text-xs bg-black p-2 rounded text-gray-400 mb-4">https://api.corenode.com/v1/models/${m.id}/generate</code>
+                    <button class="text-cyan-400 border border-cyan-400 px-4 py-1 rounded text-sm hover:bg-cyan-400 hover:text-black">More Details</button>
+                </div>
+            `).join('');
+        }
+        loadModels();
     </script>
 </body>
 </html>
