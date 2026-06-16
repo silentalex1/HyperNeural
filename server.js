@@ -3,21 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
-import nodemailer from 'nodemailer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 const dataFile = path.join(__dirname, 'users.json');
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.SMTP_USER || 'your-email@gmail.com',
-        pass: process.env.SMTP_PASS || 'your-app-password'
-    }
-});
 
 if (!fs.existsSync(dataFile)) fs.writeFileSync(dataFile, JSON.stringify({}));
 
@@ -82,7 +73,7 @@ app.get('/api/model/:slug', (req, res) => {
     res.status(404).json({ success: false, error: 'Not found' });
 });
 
-app.post('/api/models/:slug/request-delete', async (req, res) => {
+app.post('/api/models/:slug/request-delete', (req, res) => {
     const users = JSON.parse(fs.readFileSync(dataFile));
     const slug = req.params.slug;
     let foundUser = null;
@@ -99,17 +90,9 @@ app.post('/api/models/:slug/request-delete', async (req, res) => {
         foundUser.deleteCode = code;
         fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
         
-        try {
-            await transporter.sendMail({
-                from: '"HyperNeural" <noreply@hyperneural.cfd>',
-                to: foundUser.email,
-                subject: 'hyperneural code confirmation',
-                text: `heres your code: ${code}`
-            });
-            return res.json({ success: true });
-        } catch (error) {
-            return res.status(500).json({ error: 'Failed to send email' });
-        }
+        console.log(`MOCK EMAIL SENT TO ${foundUser.email} - CODE: ${code}`);
+        
+        return res.json({ success: true, code }); 
     }
     res.status(404).json({ error: 'Not found' });
 });
