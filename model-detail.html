@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Detail - Corenode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/dashboard.css">
+</head>
+<body class="bg-[#030303] text-gray-200 flex min-h-screen overflow-x-hidden">
+    <aside class="w-72 bg-[#050505]/80 backdrop-blur-2xl border-r border-[#1f1f1f] flex flex-col shrink-0">
+        <div class="p-8">
+            <h1 class="text-2xl font-bold tracking-wider text-white flex items-center gap-3 mb-10 cursor-pointer" onclick="window.history.back()">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                Back
+            </h1>
+            <nav class="space-y-2 font-medium text-sm text-gray-400" id="tabs">
+                <div data-tab="overview" class="tab-btn flex items-center gap-3 px-4 py-3 rounded-lg bg-white/[0.03] text-cyan-400 border border-[#1f1f1f] cursor-pointer">Overview</div>
+                <div data-tab="api" class="tab-btn flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/[0.02] hover:text-white transition-colors cursor-pointer border border-transparent hover:border-[#1f1f1f]">API & Integration</div>
+                <div data-tab="analytics" class="tab-btn flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/[0.02] hover:text-white transition-colors cursor-pointer border border-transparent hover:border-[#1f1f1f]">Usage Analytics</div>
+            </nav>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-10 overflow-y-auto">
+        <div class="max-w-5xl mx-auto">
+            <header class="flex justify-between items-end mb-12 border-b border-[#1f1f1f] pb-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-2">
+                        <h1 class="text-4xl font-black text-white" id="m-name"></h1>
+                        <span class="px-2 py-1 rounded-md bg-[#1f1f1f] text-xs font-bold text-gray-300">v1</span>
+                        <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wide">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span id="m-status"></span>
+                        </div>
+                    </div>
+                    <p class="text-gray-500">Model Management & Settings</p>
+                </div>
+                <div class="flex gap-3">
+                    <select class="bg-[#050505] border border-[#1f1f1f] text-gray-300 px-4 py-2 rounded-lg text-sm font-medium outline-none">
+                        <option>Version 1 (Active)</option>
+                        <option>Rollback to previous</option>
+                    </select>
+                </div>
+            </header>
+
+            <div id="content-overview" class="tab-content space-y-8">
+                <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                    <h2 class="text-xl font-bold text-white mb-4">Model Description</h2>
+                    <p class="text-gray-400 text-sm">A highly optimized custom AI model deployed on Corenode's infrastructure.</p>
+                </div>
+                <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                    <h2 class="text-xl font-bold text-white mb-4">Test Playground</h2>
+                    <textarea class="w-full bg-[#050505] border border-[#1f1f1f] p-4 rounded-xl text-white outline-none focus:border-cyan-500/50 h-32 mb-4" placeholder="Enter a prompt to test your model..."></textarea>
+                    <button class="bg-cyan-500 text-black px-6 py-2 rounded-xl font-bold hover:bg-cyan-400">Run Inference</button>
+                </div>
+            </div>
+
+            <div id="content-api" class="tab-content hidden space-y-8">
+                <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                    <h2 class="text-xl font-bold text-white mb-4">API Endpoint</h2>
+                    <code id="m-endpoint" class="block bg-[#050505] border border-[#1f1f1f] p-4 rounded-xl text-cyan-400 font-mono text-sm mb-4"></code>
+                    <p class="text-gray-500 text-sm mb-2">Headers required:</p>
+                    <code class="block bg-[#050505] border border-[#1f1f1f] p-4 rounded-xl text-gray-400 font-mono text-sm">Authorization: Bearer ak_live_xxxx<br>Content-Type: application/json</code>
+                </div>
+
+                <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                    <h2 class="text-xl font-bold text-white mb-4">cURL Example</h2>
+                    <pre class="bg-[#050505] border border-[#1f1f1f] p-4 rounded-xl text-gray-300 font-mono text-sm overflow-x-auto"><code id="m-curl"></code></pre>
+                </div>
+
+                <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                    <h2 class="text-xl font-bold text-white mb-4">Embed Widget Code</h2>
+                    <p class="text-gray-400 text-sm mb-4">Copy this code into your website's HTML to embed the chat interface.</p>
+                    <pre class="bg-[#050505] border border-[#1f1f1f] p-4 rounded-xl text-gray-300 font-mono text-sm overflow-x-auto"><code id="m-widget"></code></pre>
+                </div>
+
+                <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Rate Limits</h2>
+                        <p class="text-gray-400 text-sm">Current plan allows 10,000 requests / minute.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-analytics" class="tab-content hidden space-y-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                        <div class="text-gray-500 text-sm font-medium mb-2 uppercase">Reqs / Day</div>
+                        <div class="text-3xl font-black text-white">12,450</div>
+                    </div>
+                    <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                        <div class="text-gray-500 text-sm font-medium mb-2 uppercase">Avg Latency</div>
+                        <div class="text-3xl font-black text-white">245ms</div>
+                    </div>
+                    <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                        <div class="text-gray-500 text-sm font-medium mb-2 uppercase">Tokens Used</div>
+                        <div class="text-3xl font-black text-white">1.2M</div>
+                    </div>
+                    <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                        <div class="text-gray-500 text-sm font-medium mb-2 uppercase">Error Rate</div>
+                        <div class="text-3xl font-black text-white">0.01%</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/model-detail.js"></script>
+</body>
+</html>
