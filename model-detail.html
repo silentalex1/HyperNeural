@@ -3,57 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Model Detail - Corenode</title>
+    <title>Model Detail - HyperNeural</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="/dashboard.css">
 </head>
 <body class="bg-[#030303] text-gray-200 flex min-h-screen overflow-x-hidden">
     <aside class="w-72 bg-[#050505]/80 backdrop-blur-2xl border-r border-[#1f1f1f] flex flex-col shrink-0">
-        <div class="p-8">
-            <h1 class="text-2xl font-bold tracking-wider text-white flex items-center gap-3 mb-10 cursor-pointer" onclick="window.history.back()">
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        <div class="p-8 flex-1">
+            <h1 class="text-2xl font-bold tracking-wider text-white flex items-center gap-3 mb-10 cursor-pointer hover:text-cyan-400 transition-colors" onclick="window.history.back()">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 Back
             </h1>
             <nav class="space-y-2 font-medium text-sm text-gray-400" id="tabs">
                 <div data-tab="overview" class="tab-btn flex items-center gap-3 px-4 py-3 rounded-lg bg-white/[0.03] text-cyan-400 border border-[#1f1f1f] cursor-pointer">Overview</div>
+                <div data-tab="finetune" class="tab-btn flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/[0.02] hover:text-white transition-colors cursor-pointer border border-transparent hover:border-[#1f1f1f]">Fine-Tune</div>
+                <div data-tab="sdks" class="tab-btn flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/[0.02] hover:text-white transition-colors cursor-pointer border border-transparent hover:border-[#1f1f1f]">SDK Marketplace</div>
                 <div data-tab="api" class="tab-btn flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/[0.02] hover:text-white transition-colors cursor-pointer border border-transparent hover:border-[#1f1f1f]">API & Integration</div>
                 <div data-tab="analytics" class="tab-btn flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-white/[0.02] hover:text-white transition-colors cursor-pointer border border-transparent hover:border-[#1f1f1f]">Usage Analytics</div>
             </nav>
         </div>
+        <div class="mt-auto flex flex-col">
+            <div onclick="logout()" class="mx-6 mb-4 flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-500/10 text-red-500 transition-colors cursor-pointer border border-transparent hover:border-red-500/20 font-medium text-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                Logout
+            </div>
+        </div>
     </aside>
 
     <main class="flex-1 p-10 overflow-y-auto">
-        <div class="max-w-5xl mx-auto">
-            <header class="flex justify-between items-end mb-12 border-b border-[#1f1f1f] pb-8">
-                <div>
-                    <div class="flex items-center gap-3 mb-2">
-                        <h1 class="text-4xl font-black text-white" id="m-name"></h1>
-                        <span class="px-2 py-1 rounded-md bg-[#1f1f1f] text-xs font-bold text-gray-300">v1</span>
-                        <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wide">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span id="m-status"></span>
+        <div class="max-w-6xl mx-auto">
+            <header class="mb-12 border-b border-[#1f1f1f] pb-8">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <h1 class="text-4xl font-black text-white" id="m-name"></h1>
+                            <span class="px-2 py-1 rounded-md bg-[#1f1f1f] text-xs font-bold text-gray-300">v1</span>
+                            <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wide">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span id="m-status"></span>
+                            </div>
                         </div>
+                        <p class="text-gray-500">Model Management & Settings</p>
                     </div>
-                    <p class="text-gray-500">Model Management & Settings</p>
+                    <div class="flex gap-3">
+                        <button onclick="document.querySelector('[data-tab=\'api\']').click()" class="bg-white/[0.03] border border-[#1f1f1f] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-white/[0.08] transition-all">Deploy</button>
+                        <button onclick="document.querySelector('[data-tab=\'sdks\']').click()" class="bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 px-4 py-2 rounded-lg text-sm font-bold hover:bg-cyan-500 hover:text-black transition-all">SDKs</button>
+                        <button onclick="document.querySelector('[data-tab=\'overview\']').click()" class="bg-cyan-500 text-black px-4 py-2 rounded-lg text-sm font-bold hover:bg-cyan-400 transition-all">Playground</button>
+                        <button onclick="requestDelete()" class="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-500 hover:text-white transition-all ml-4">Delete</button>
+                    </div>
                 </div>
-                <div class="flex gap-3">
-                    <select class="bg-[#050505] border border-[#1f1f1f] text-gray-300 px-4 py-2 rounded-lg text-sm font-medium outline-none">
-                        <option>Version 1 (Active)</option>
-                        <option>Rollback to previous</option>
-                    </select>
-                    <button onclick="requestDelete()" class="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-500 hover:text-white transition-all">Delete</button>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+                    <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                        <div class="text-gray-500 text-sm font-medium mb-2 uppercase">Requests Today</div>
+                        <div class="text-3xl font-black text-white">12,843</div>
+                    </div>
+                    <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                        <div class="text-gray-500 text-sm font-medium mb-2 uppercase">Latency</div>
+                        <div class="text-3xl font-black text-white">134ms</div>
+                    </div>
+                    <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                        <div class="text-gray-500 text-sm font-medium mb-2 uppercase">Training Score</div>
+                        <div class="text-3xl font-black text-white text-emerald-400">92%</div>
+                    </div>
+                    <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
+                        <div class="text-gray-500 text-sm font-medium mb-2 uppercase">Version</div>
+                        <div class="text-3xl font-black text-white">v1.0</div>
+                    </div>
                 </div>
             </header>
 
             <div id="content-overview" class="tab-content space-y-8">
                 <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
                     <h2 class="text-xl font-bold text-white mb-4">Model Description</h2>
-                    <p class="text-gray-400 text-sm">A highly optimized custom AI model deployed on Corenode's infrastructure.</p>
+                    <p class="text-gray-400 text-sm">A highly optimized custom AI model deployed on HyperNeural's infrastructure.</p>
                 </div>
                 <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
                     <h2 class="text-xl font-bold text-white mb-4">Test Playground</h2>
                     <textarea class="w-full bg-[#050505] border border-[#1f1f1f] p-4 rounded-xl text-white outline-none focus:border-cyan-500/50 h-32 mb-4" placeholder="Enter a prompt to test your model..."></textarea>
                     <button class="bg-cyan-500 text-black px-6 py-2 rounded-xl font-bold hover:bg-cyan-400">Run Inference</button>
+                </div>
+            </div>
+
+            <div id="content-finetune" class="tab-content hidden space-y-8">
+                <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-8">
+                    <h2 class="text-2xl font-bold text-white mb-2">Quick Fine-Tune</h2>
+                    <p class="text-gray-400 text-sm mb-6">Provide instructions, personality, or upload knowledge files to instantly fine-tune your model.</p>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-bold text-white mb-2">System Instructions</label>
+                            <textarea class="w-full bg-[#050505] border border-[#1f1f1f] p-4 rounded-xl text-gray-300 outline-none focus:border-cyan-500/50 h-32" placeholder="Example: You are a support assistant for my company. Always answer professionally. Never discuss unrelated topics."></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-white mb-2">Knowledge Base</label>
+                            <div class="flex gap-4">
+                                <button class="flex-1 bg-white/[0.03] border border-[#1f1f1f] text-gray-300 px-4 py-4 rounded-xl text-sm font-bold hover:bg-white/[0.08] hover:text-white transition-all flex items-center justify-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                    Upload Dataset
+                                </button>
+                                <button class="flex-1 bg-white/[0.03] border border-[#1f1f1f] text-gray-300 px-4 py-4 rounded-xl text-sm font-bold hover:bg-white/[0.08] hover:text-white transition-all flex items-center justify-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                    Add URL
+                                </button>
+                                <button class="flex-1 bg-white/[0.03] border border-[#1f1f1f] text-gray-300 px-4 py-4 rounded-xl text-sm font-bold hover:bg-white/[0.08] hover:text-white transition-all flex items-center justify-center gap-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    Add PDF / Doc
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-[#1f1f1f] pt-6">
+                            <label class="block text-sm font-bold text-white mb-4">Smart Training</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label class="flex items-center gap-3 p-4 border border-[#1f1f1f] rounded-xl cursor-pointer hover:bg-white/[0.02]">
+                                    <input type="checkbox" class="w-5 h-5 rounded border-gray-600 text-cyan-500 focus:ring-cyan-500 bg-[#050505]">
+                                    <span class="text-sm text-gray-300">Auto-generate training examples</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-4 border border-[#1f1f1f] rounded-xl cursor-pointer hover:bg-white/[0.02]">
+                                    <input type="checkbox" class="w-5 h-5 rounded border-gray-600 text-cyan-500 focus:ring-cyan-500 bg-[#050505]">
+                                    <span class="text-sm text-gray-300">Improve response consistency</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-4 border border-[#1f1f1f] rounded-xl cursor-pointer hover:bg-white/[0.02]">
+                                    <input type="checkbox" class="w-5 h-5 rounded border-gray-600 text-cyan-500 focus:ring-cyan-500 bg-[#050505]">
+                                    <span class="text-sm text-gray-300">Optimize for website chatbot</span>
+                                </label>
+                                <label class="flex items-center gap-3 p-4 border border-[#1f1f1f] rounded-xl cursor-pointer hover:bg-white/[0.02]">
+                                    <input type="checkbox" class="w-5 h-5 rounded border-gray-600 text-cyan-500 focus:ring-cyan-500 bg-[#050505]">
+                                    <span class="text-sm text-gray-300">Optimize for coding / JSON</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-cyan-900/20 to-blue-900/20 border border-cyan-500/20 rounded-2xl p-8">
+                    <h2 class="text-xl font-bold text-white mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        AI Training Assistant
+                    </h2>
+                    <p class="text-gray-400 text-sm mb-4">Describe what you want, and we'll automatically generate system prompts, conversation examples, and datasets.</p>
+                    <div class="flex gap-4">
+                        <input type="text" placeholder="I want my model to act like a coding tutor..." class="flex-1 bg-[#050505] border border-[#1f1f1f] p-4 rounded-xl text-white outline-none focus:border-cyan-500/50">
+                        <button class="bg-cyan-500 text-black px-8 py-4 rounded-xl font-bold hover:bg-cyan-400 transition-all">Generate</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="content-sdks" class="tab-content hidden space-y-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-2">SDK Marketplace</h2>
+                    <p class="text-gray-400 text-sm mb-8">Official libraries and integrations to quickly build with your HyperNeural models.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6 hover:border-cyan-500/30 transition-all cursor-pointer">
+                            <h3 class="text-lg font-bold text-white mb-1">Website SDK</h3>
+                            <p class="text-xs text-gray-500 mb-4">Embed AI chat widget directly into HTML websites</p>
+                            <button class="w-full border border-[#1f1f1f] text-gray-300 py-2 rounded-lg text-sm hover:bg-white/[0.05]">View Docs</button>
+                        </div>
+                        <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6 hover:border-cyan-500/30 transition-all cursor-pointer">
+                            <h3 class="text-lg font-bold text-white mb-1">React / Next.js SDK</h3>
+                            <p class="text-xs text-gray-500 mb-4">React hooks, components, streaming, SSR support</p>
+                            <button class="w-full border border-[#1f1f1f] text-gray-300 py-2 rounded-lg text-sm hover:bg-white/[0.05]">View Docs</button>
+                        </div>
+                        <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6 hover:border-cyan-500/30 transition-all cursor-pointer">
+                            <h3 class="text-lg font-bold text-white mb-1">Node.js SDK</h3>
+                            <p class="text-xs text-gray-500 mb-4">Backend integrations for Express, Fastify, NestJS</p>
+                            <button class="w-full border border-[#1f1f1f] text-gray-300 py-2 rounded-lg text-sm hover:bg-white/[0.05]">View Docs</button>
+                        </div>
+                        <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6 hover:border-cyan-500/30 transition-all cursor-pointer">
+                            <h3 class="text-lg font-bold text-white mb-1">Python SDK</h3>
+                            <p class="text-xs text-gray-500 mb-4">Training, inference, AI agents, data automation</p>
+                            <button class="w-full border border-[#1f1f1f] text-gray-300 py-2 rounded-lg text-sm hover:bg-white/[0.05]">View Docs</button>
+                        </div>
+                        <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6 hover:border-cyan-500/30 transition-all cursor-pointer">
+                            <h3 class="text-lg font-bold text-white mb-1">Discord SDK</h3>
+                            <p class="text-xs text-gray-500 mb-4">Discord bots, slash commands, moderation bots</p>
+                            <button class="w-full border border-[#1f1f1f] text-gray-300 py-2 rounded-lg text-sm hover:bg-white/[0.05]">View Docs</button>
+                        </div>
+                        <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6 hover:border-cyan-500/30 transition-all cursor-pointer">
+                            <h3 class="text-lg font-bold text-white mb-1">Roblox SDK</h3>
+                            <p class="text-xs text-gray-500 mb-4">Game NPCs, quest systems, dynamic dialogue</p>
+                            <button class="w-full border border-[#1f1f1f] text-gray-300 py-2 rounded-lg text-sm hover:bg-white/[0.05]">View Docs</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -70,12 +203,6 @@
                     <pre class="bg-[#050505] border border-[#1f1f1f] p-4 rounded-xl text-gray-300 font-mono text-sm overflow-x-auto"><code id="m-curl"></code></pre>
                 </div>
 
-                <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
-                    <h2 class="text-xl font-bold text-white mb-4">Embed Widget Code</h2>
-                    <p class="text-gray-400 text-sm mb-4">Copy this code into your website's HTML to embed the chat interface.</p>
-                    <pre class="bg-[#050505] border border-[#1f1f1f] p-4 rounded-xl text-gray-300 font-mono text-sm overflow-x-auto"><code id="m-widget"></code></pre>
-                </div>
-
                 <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6 flex justify-between items-center">
                     <div>
                         <h2 class="text-xl font-bold text-white">Rate Limits</h2>
@@ -88,11 +215,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
                         <div class="text-gray-500 text-sm font-medium mb-2 uppercase">Reqs / Day</div>
-                        <div class="text-3xl font-black text-white">12,450</div>
+                        <div class="text-3xl font-black text-white">12,843</div>
                     </div>
                     <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
                         <div class="text-gray-500 text-sm font-medium mb-2 uppercase">Avg Latency</div>
-                        <div class="text-3xl font-black text-white">245ms</div>
+                        <div class="text-3xl font-black text-white">134ms</div>
                     </div>
                     <div class="bg-[#0a0a0a] border border-[#1f1f1f] rounded-2xl p-6">
                         <div class="text-gray-500 text-sm font-medium mb-2 uppercase">Tokens Used</div>
@@ -111,7 +238,7 @@
     <div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-[#030303]/90 backdrop-blur-sm" onclick="document.getElementById('delete-modal').classList.add('hidden')"></div>
         <div class="relative bg-[#0a0a0a] border border-[#1f1f1f] p-8 rounded-3xl w-full max-w-sm shadow-2xl">
-            <h2 class="text-xl font-bold text-white mb-2">Delete Model</h2>
+            <h2 class="text-xl font-bold text-white mb-2">hyperneural code confirmation</h2>
             <p class="text-gray-400 text-sm mb-6">Enter an code that you get from your email.</p>
             <input type="text" id="delete-code" placeholder="e.g. fga026" class="w-full bg-[#050505] border border-[#1f1f1f] p-3 rounded-xl text-white outline-none focus:border-red-500/50 mb-6 text-center tracking-[0.25em] font-mono">
             <div class="flex gap-3">
