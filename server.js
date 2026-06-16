@@ -3,12 +3,21 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 const dataFile = path.join(__dirname, 'users.json');
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.SMTP_USER || 'your-email@gmail.com',
+        pass: process.env.SMTP_PASS || 'your-app-password'
+    }
+});
 
 if (!fs.existsSync(dataFile)) fs.writeFileSync(dataFile, JSON.stringify({}));
 
@@ -73,22 +82,34 @@ app.get('/api/model/:slug', (req, res) => {
     res.status(404).json({ success: false, error: 'Not found' });
 });
 
-app.post('/api/models/:slug/request-delete', (req, res) => {
+app.post('/api/models/:slug/request-delete', async (req, res) => {
     const users = JSON.parse(fs.readFileSync(dataFile));
     const slug = req.params.slug;
-    let found = false;
+    let foundUser = null;
+    
     for (const username in users) {
-        const model = users[username].models.find(m => m.slug === slug);
-        if (model) {
-            users[username].deleteCode = Math.floor(100000 + Math.random() * 900000).toString();
-            console.log(`Email sent to ${users[username].email} with code: ${users[username].deleteCode}`);
-            found = true;
+        if (users[username].models.some(m => m.slug === slug)) {
+            foundUser = users[username];
             break;
         }
     }
-    if (found) {
+    
+    if (foundUser) {
+        const code = crypto.randomBytes(3).toString('hex');
+        foundUser.deleteCode = code;
         fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
-        return res.json({ success: true });
+        
+        try {
+            await transporter.sendMail({
+                from: '"HyperNeural" <noreply@hyperneural.cfd>',
+                to: foundUser.email,
+                subject: 'hyperneural code confirmation',
+                text: `heres your code: ${code}`
+            });
+            return res.json({ success: true });
+        } catch (error) {
+            return res.status(500).json({ error: 'Failed to send email' });
+        }
     }
     res.status(404).json({ error: 'Not found' });
 });
@@ -99,6 +120,7 @@ app.post('/api/models/:slug/delete', (req, res) => {
     const users = JSON.parse(fs.readFileSync(dataFile));
     let deleted = false;
     let uName = "";
+    
     for (const username in users) {
         const index = users[username].models.findIndex(m => m.slug === slug);
         if (index !== -1) {
@@ -113,6 +135,7 @@ app.post('/api/models/:slug/delete', (req, res) => {
             break;
         }
     }
+    
     if (deleted) {
         fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
         return res.json({ success: true, username: uName });
