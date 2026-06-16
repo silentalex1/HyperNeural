@@ -1,13 +1,13 @@
 {
   "name": "corenode-platform",
   "version": "1.0.0",
-  "description": "",
   "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.22.2"
+    "express": "^4.22.2",
+    "nodemailer": "^6.9.13"
   }
 }
