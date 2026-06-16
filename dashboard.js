@@ -38,7 +38,7 @@ async function handleUpload() {
     
     document.getElementById('upload-modal').classList.add('hidden');
     document.getElementById('congrats-text').innerText = `Congrats on your AI model: ${name}`;
-    document.getElementById('api-link').innerText = `https://api.corenode.com/v1/models/${data.model.id}/generate`;
+    document.getElementById('api-link').innerText = `https://api.hyperneural.cfd/v1/models/${data.model.id}/generate`;
     document.getElementById('success-modal').classList.remove('hidden');
     document.getElementById('model-name').value = '';
     document.getElementById('file-input').value = '';
@@ -91,7 +91,7 @@ async function loadModels() {
                     
                     <div class="mb-6">
                         <div class="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-2">Endpoint</div>
-                        <code class="block text-xs bg-[#050505] border border-[#1f1f1f] p-3 rounded-lg text-cyan-400 font-mono break-all selection:bg-cyan-500/30">${`https://api.corenode.com/v1/models/${m.id}/generate`}</code>
+                        <code class="block text-xs bg-[#050505] border border-[#1f1f1f] p-3 rounded-lg text-cyan-400 font-mono break-all selection:bg-cyan-500/30">${`https://api.hyperneural.cfd/v1/models/${m.id}/generate`}</code>
                     </div>
                     
                     <div class="mt-auto flex gap-3 pt-4 border-t border-[#1f1f1f]/50">
