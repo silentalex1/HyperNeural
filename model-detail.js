@@ -10,7 +10,7 @@ async function loadModelData() {
     }
 
     const m = data.model;
-    const endpoint = `https://api.corenode.com/v1/models/${m.id}/generate`;
+    const endpoint = `https://api.hyperneural.cfd/v1/models/${m.id}/generate`;
 
     document.getElementById('m-name').innerText = m.name;
     document.getElementById('m-status').innerText = m.status;
@@ -21,13 +21,41 @@ async function loadModelData() {
 -H "Content-Type: application/json" \\
 -d '{"prompt": "Hello world"}'`;
 
-    document.getElementById('m-widget').innerText = `<script src="https://cdn.corenode.com/widget.js"><\/script>
+    document.getElementById('m-widget').innerText = `<script src="https://cdn.hyperneural.cfd/widget.js"><\/script>
 <script>
 AIWidget.init({
   model: "${m.slug}",
   apiKey: "ak_live_xxx"
 });
 <\/script>`;
+}
+
+async function requestDelete() {
+    const res = await fetch(`/api/models/${slug}/request-delete`, { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+        document.getElementById('delete-modal').classList.remove('hidden');
+    } else {
+        alert("Error requesting deletion code.");
+    }
+}
+
+async function confirmDelete() {
+    const code = document.getElementById('delete-code').value;
+    if (!code) return alert("Please enter the code.");
+
+    const res = await fetch(`/api/models/${slug}/delete`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+        window.location.href = `/dashboard/${data.username}`;
+    } else {
+        alert(data.error);
+    }
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
