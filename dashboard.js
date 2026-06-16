@@ -111,4 +111,8 @@ async function loadModels() {
     }
 }
 
+function logout() {
+    window.location.href = '/userauth';
+}
+
 loadModels();
