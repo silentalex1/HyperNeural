@@ -20,14 +20,6 @@ async function loadModelData() {
 -H "Authorization: Bearer ak_live_xxxx" \\
 -H "Content-Type: application/json" \\
 -d '{"prompt": "Hello world"}'`;
-
-    document.getElementById('m-widget').innerText = `<script src="https://cdn.hyperneural.cfd/widget.js"><\/script>
-<script>
-AIWidget.init({
-  model: "${m.slug}",
-  apiKey: "ak_live_xxx"
-});
-<\/script>`;
 }
 
 async function requestDelete() {
@@ -56,6 +48,10 @@ async function confirmDelete() {
     } else {
         alert(data.error);
     }
+}
+
+function logout() {
+    window.location.href = '/userauth';
 }
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
