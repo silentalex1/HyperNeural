@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — HyperNeural</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/dashboard/dashboard.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <a href="/" class="brand">
+      <span class="brand-name">HyperNeural</span>
+    </a>
+    <nav class="side-nav">
+      <button class="side-link active" data-view="overview">
+        <span class="side-icon">◧</span> Overview
+      </button>
+      <button class="side-link" data-view="models">
+        <span class="side-icon">▣</span> Your Models
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="side-user">
+        <span class="side-avatar" id="side-avatar">U</span>
+        <span class="side-username" id="side-username">—</span>
+      </div>
+      <button class="side-logout" id="logout-btn">Log out</button>
+    </div>
+  </aside>
+
+  <main class="content">
+    <section class="view" id="view-overview">
+      <div class="view-header">
+        <div>
+          <h1 id="welcome-heading">Welcome back.</h1>
+          <p class="view-sub">Here's what's happening with your models.</p>
+        </div>
+        <button class="btn btn-primary" id="deploy-btn-overview">+ Deploy Model</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Active Models</span>
+          <span class="stat-value" id="stat-active">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total Requests</span>
+          <span class="stat-value" id="stat-requests">0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Avg Latency</span>
+          <span class="stat-value" id="stat-latency">—</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Files Hosted</span>
+          <span class="stat-value" id="stat-files">0</span>
+        </div>
+      </div>
+
+      <h2 class="section-title">Recent Deployments</h2>
+      <div class="deploy-grid" id="recent-deployments"></div>
+    </section>
+
+    <section class="view hidden" id="view-models">
+      <div class="view-header">
+        <div>
+          <h1>Your Models</h1>
+          <p class="view-sub">Every model you've deployed, in one place.</p>
+        </div>
+        <button class="btn btn-primary" id="deploy-btn-models">+ Deploy Model</button>
+      </div>
+
+      <input type="text" class="search-input" id="model-search" placeholder="Search models...">
+
+      <div class="model-list" id="model-list"></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-backdrop hidden" id="deploy-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <h2 id="modal-title">Deploy New Model</h2>
+        <p class="modal-sub" id="modal-sub">Name your model and optionally upload a GGUF file to host.</p>
+      </div>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+
+    <form id="deploy-form" class="modal-form">
+      <label class="field-label">Model Name</label>
+      <input type="text" id="model-name" class="field-input" placeholder="example: SuperBot" required>
+
+      <label class="field-label">Description</label>
+      <textarea id="model-description" class="field-input field-textarea" placeholder="What does your model do?" rows="3"></textarea>
+
+      <label class="field-label">Base Model <span class="field-hint">(Ollama model name, e.g. llama3.2)</span></label>
+      <input type="text" id="model-base" class="field-input" placeholder="llama3.2">
+
+      <label class="field-label">Upload Model Files <span class="field-hint">(optional · .gguf, .safetensors, .bin, .jsonl)</span></label>
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-icon">⤒</div>
+        <p>Drop files or a project folder here</p>
+        <div class="dropzone-actions">
+          <button type="button" class="btn btn-ghost" id="select-files-btn">Select Files</button>
+          <button type="button" class="btn btn-ghost btn-accent" id="select-folder-btn">Select Project Folder</button>
+        </div>
+        <p class="dropzone-hint">Select multiple individual files, or one folder containing your whole project</p>
+        <input type="file" id="file-input" multiple hidden>
+        <input type="file" id="folder-input" multiple webkitdirectory hidden>
+      </div>
+      <ul class="file-chip-list" id="file-chip-list"></ul>
+
+      <p class="form-error" id="deploy-error"></p>
+
+      <button type="submit" class="btn btn-primary btn-block" id="deploy-submit">Deploy Model</button>
+    </form>
+
+    <div class="modal-success hidden" id="deploy-success">
+      <div class="success-icon">✓</div>
+      <h2>Your model is live</h2>
+      <p>Here's your official model connector:</p>
+      <div class="endpoint-box">
+        <code id="success-endpoint"></code>
+        <button class="copy-btn" data-copy-target="success-endpoint">Copy</button>
+      </div>
+      <p class="success-id">Model ID: <code id="success-id"></code></p>
+      <div class="success-actions">
+        <button class="btn btn-ghost" id="success-close">Close</button>
+        <button class="btn btn-primary" id="success-view">View model</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/dashboard/dashboard.js"></script>
+</body>
+</html>
