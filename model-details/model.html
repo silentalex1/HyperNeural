@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Model — HyperNeural</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="model.css">
+</head>
+<body>
+<div class="model-shell">
+  <div class="model-topbar">
+    <a href="#" id="back-link" class="back-link">&lt; Back</a>
+    <h1 id="model-title">Loading…</h1>
+    <span class="version-badge" id="top-version">v1</span>
+    <span class="status-badge" id="top-status"></span>
+    <button class="btn btn-danger delete-btn" id="delete-btn">Delete</button>
+  </div>
+
+  <div class="stats-grid model-stats">
+    <div class="stat-card">
+      <span class="stat-label">Requests Today</span>
+      <span class="stat-value" id="stat-requests">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Latency</span>
+      <span class="stat-value" id="stat-latency">—</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Files Hosted</span>
+      <span class="stat-value" id="stat-files">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Version</span>
+      <span class="stat-value" id="stat-version">v1</span>
+    </div>
+  </div>
+
+  <div class="model-tabs">
+    <button class="model-tab active" data-tab="overview">Overview</button>
+    <button class="model-tab" data-tab="finetune">Fine-Tune</button>
+    <button class="model-tab" data-tab="sdk">SDK Marketplace</button>
+    <button class="model-tab" data-tab="versions">Versions</button>
+    <button class="model-tab" data-tab="api">API &amp; Integration</button>
+  </div>
+
+  <section class="tab-panel active" id="tab-overview">
+    <div class="conversion-banner hidden" id="conversion-banner">
+      Found a .safetensors weight file. HyperNeural currently runs GGUF format models through Ollama — convert your model with llama.cpp's convert script and re-upload the .gguf file. Your model will keep working on its base model in the meantime.
+    </div>
+
+    <div class="overview-grid">
+      <div class="panel">
+        <h3>Test Your Model</h3>
+        <div class="chat-window" id="chat-window">
+          <div class="chat-empty" id="chat-empty">Send a message to see how your model responds.</div>
+        </div>
+        <form class="chat-form" id="chat-form">
+          <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h3>Model Endpoint</h3>
+        <label class="field-label">POST</label>
+        <div class="endpoint-box">
+          <code id="endpoint-url"></code>
+          <button class="copy-btn" data-copy-target="endpoint-url">Copy</button>
+        </div>
+        <label class="field-label" style="margin-top:18px;">Request Body</label>
+        <div class="endpoint-box">
+          <code id="request-body">{"prompt": "Your message here"}</code>
+          <button class="copy-btn" data-copy-target="request-body">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header-row">
+        <h3>Hosted Files</h3>
+        <span class="text-faint" id="file-count">0 files</span>
+      </div>
+      <div id="hosted-files"></div>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-finetune">
+    <div class="panel">
+      <h3>System Instructions</h3>
+      <p class="panel-desc">Set system instructions, add a knowledge base, and toggle training options. Save as a new version at any time and roll back instantly if needed.</p>
+      <label class="field-label">System Prompt</label>
+      <textarea id="system-prompt" class="field-input field-textarea" rows="4" placeholder="You are a helpful assistant that..."></textarea>
+
+      <label class="field-label">Knowledge Base</label>
+      <textarea id="knowledge-base" class="field-input field-textarea" rows="6" placeholder="Paste reference text, docs, or FAQs your model should know about..."></textarea>
+
+      <label class="toggle-row">
+        <input type="checkbox" id="save-as-version">
+        <span>Save as a new version</span>
+      </label>
+
+      <p class="auth-error" id="finetune-error"></p>
+      <p class="success-msg hidden" id="finetune-success">Saved. Your model has been updated.</p>
+
+      <button class="btn btn-primary" id="finetune-save">Save Changes</button>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-sdk">
+    <div class="panel">
+      <h3>Integrate via SDK</h3>
+      <p class="panel-desc">Call your model from any environment with a plain HTTPS request.</p>
+      <div class="sdk-tabs">
+        <button class="sdk-tab active" data-lang="js">Node.js / React</button>
+        <button class="sdk-tab" data-lang="python">Python</button>
+        <button class="sdk-tab" data-lang="curl">cURL</button>
+        <button class="sdk-tab" data-lang="discord">Discord Bot</button>
+      </div>
+      <pre class="code-block"><code id="sdk-code"></code></pre>
+      <button class="copy-btn" id="sdk-copy">Copy code</button>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-versions">
+    <div class="panel">
+      <h3>Version History</h3>
+      <p class="panel-desc">Roll back to any previous version instantly. Full history preserved.</p>
+      <div id="version-list" class="version-list"></div>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-api">
+    <div class="panel">
+      <h3>API &amp; Integration</h3>
+      <label class="field-label">Generate Endpoint</label>
+      <div class="endpoint-box">
+        <code id="api-endpoint"></code>
+        <button class="copy-btn" data-copy-target="api-endpoint">Copy</button>
+      </div>
+
+      <label class="field-label" style="margin-top:20px;">Example Request (cURL)</label>
+      <pre class="code-block"><code id="api-curl"></code></pre>
+      <button class="copy-btn" data-copy-target="api-curl">Copy</button>
+
+      <label class="field-label" style="margin-top:20px;">Example Request (fetch)</label>
+      <pre class="code-block"><code id="api-fetch"></code></pre>
+      <button class="copy-btn" data-copy-target="api-fetch">Copy</button>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop hidden" id="delete-modal">
+  <div class="modal small-modal">
+    <h2>Delete this model?</h2>
+    <p class="modal-sub">This permanently removes the model, its files, and its API endpoint. This cannot be undone.</p>
+    <div class="success-actions">
+      <button class="btn btn-ghost" id="delete-cancel">Cancel</button>
+      <button class="btn btn-danger" id="delete-confirm">Delete Model</button>
+    </div>
+  </div>
+</div>
+
+<script src="model.js"></script>
+</body>
+</html>
