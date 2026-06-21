@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HyperNeural - Train. Deploy. Scale.</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-[#030303] text-gray-200 font-sans min-h-screen overflow-x-hidden relative">
+
+    <div class="fixed top-0 left-0 w-full h-full pointer-events-none overflow-hidden z-0">
+        <div id="glow-bg" class="absolute w-[700px] h-[700px] rounded-full bg-gradient-to-r from-cyan-500/8 to-cyan-800/8 blur-[160px]"></div>
+        <div class="absolute w-[400px] h-[400px] rounded-full bg-cyan-500/3 blur-[120px] bottom-0 right-0"></div>
+    </div>
+
+    <header class="relative z-10 max-w-7xl mx-auto px-6 py-5 flex justify-between items-center border-b border-white/5">
+        <div class="flex items-center gap-3">
+            <div class="relative w-8 h-8 flex items-center justify-center">
+                <div class="absolute inset-0 bg-cyan-500 rotate-45 rounded-sm"></div>
+                <div class="absolute inset-[3px] bg-[#030303] rotate-45 rounded-sm"></div>
+                <div class="absolute w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+            </div>
+            <span class="text-xl font-black tracking-wider text-white">HYPER<span class="text-cyan-400">NEURAL</span></span>
+        </div>
+        <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-gray-400">
+            <a href="#features" class="hover:text-white transition-colors">Features</a>
+            <a href="#how-it-works" class="hover:text-white transition-colors">How It Works</a>
+            <a href="/documentation" class="hover:text-white transition-colors">Docs</a>
+            <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
+        </nav>
+        <button onclick="window.location.href='/userauth'" class="relative group overflow-hidden px-5 py-2.5 text-sm font-bold text-white bg-white/[0.04] border border-white/10 rounded-lg transition-all hover:border-cyan-500/50 hover:bg-cyan-500/10">
+            Open Dashboard →
+        </button>
+    </header>
+
+    <main class="relative z-10 max-w-7xl mx-auto px-6">
+
+        <section class="pt-28 pb-24 text-center max-w-5xl mx-auto">
+            <div class="inline-flex items-center gap-2.5 px-4 py-1.5 text-xs font-bold tracking-widest text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 rounded-full uppercase mb-8 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                Platform Now Live — All Systems Operational
+            </div>
+            <h1 class="text-6xl sm:text-7xl font-black tracking-tight text-white leading-[1.05] mb-6">
+                Your AI models.<br>
+                <span class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-cyan-500 bg-clip-text text-transparent">Trained and running.</span>
+            </h1>
+            <p class="text-gray-400 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
+                Deploy custom AI models in minutes. Fine-tune them with your data. Integrate via SDK or API. No infrastructure headaches.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                <button onclick="window.location.href='/userauth'" class="w-full sm:w-auto px-8 py-4 bg-cyan-500 text-black font-black rounded-xl hover:bg-cyan-400 transition-all shadow-[0_0_40px_rgba(6,182,212,0.3)] hover:shadow-[0_0_60px_rgba(6,182,212,0.5)] hover:-translate-y-0.5 text-base">
+                    Get Started Free
+                </button>
+                <a href="/documentation" class="w-full sm:w-auto px-8 py-4 bg-white/[0.03] hover:bg-white/[0.07] text-white font-semibold rounded-xl border border-white/10 transition-all hover:-translate-y-0.5 text-base">
+                    Read the Docs
+                </a>
+            </div>
+        </section>
+
+        <section id="features" class="py-20 grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-8 hover:border-cyan-500/30 transition-all duration-500 group">
+                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-6 group-hover:bg-cyan-500 transition-all duration-300">
+                    <svg class="w-6 h-6 text-cyan-400 group-hover:text-black transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Smart Fine-Tuning</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">Upload datasets, write system instructions, or let our AI generate them. Your model learns exactly what you need it to know.</p>
+            </div>
+            <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-8 hover:border-cyan-500/30 transition-all duration-500 group">
+                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-6 group-hover:bg-cyan-500 transition-all duration-300">
+                    <svg class="w-6 h-6 text-cyan-400 group-hover:text-black transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">5 Official SDKs</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">React, Next.js, Node.js, Python, and Discord SDKs. Drop your model into any stack in minutes with copy-paste snippets.</p>
+            </div>
+            <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-8 hover:border-cyan-500/30 transition-all duration-500 group">
+                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-6 group-hover:bg-cyan-500 transition-all duration-300">
+                    <svg class="w-6 h-6 text-cyan-400 group-hover:text-black transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-3">Version Control</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">Create new versions as your model improves. Roll back to any previous version instantly. Full history preserved.</p>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="py-20 max-w-5xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-black text-white mb-4">How It Works</h2>
+                <p class="text-gray-400">Three steps to a live AI model with its own API endpoint.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-[#050505] border border-white/5 rounded-2xl p-8">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-black text-lg mb-5">1</div>
+                    <h3 class="text-lg font-black text-white mb-3">Deploy a Model</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Click "Deploy Model", give it a name, and optionally upload a GGUF or safetensors file. Your model is live in seconds with its own unique API endpoint.</p>
+                </div>
+                <div class="bg-[#050505] border border-white/5 rounded-2xl p-8">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-black text-lg mb-5">2</div>
+                    <h3 class="text-lg font-black text-white mb-3">Fine-Tune It</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Set system instructions, add a knowledge base, and toggle training options. Save as a new version at any time and roll back instantly if needed.</p>
+                </div>
+                <div class="bg-[#050505] border border-white/5 rounded-2xl p-8">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 font-black text-lg mb-5">3</div>
+                    <h3 class="text-lg font-black text-white mb-3">Integrate via SDK</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">Call your model from React, Next.js, Node.js, Python, or Discord using our free SDK files or plain fetch. The endpoint is live at <code class="text-cyan-400 text-xs">hyperneural.cfd/api/models/your-slug/generate</code>.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pricing" class="py-24 max-w-5xl mx-auto">
+            <div class="text-center mb-14">
+                <h2 class="text-4xl font-black text-white mb-4">Simple Pricing</h2>
+                <p class="text-gray-400">Start free. Scale when you need to.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-8">
+                    <div class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Free</div>
+                    <div class="text-4xl font-black text-white mb-6">$0<span class="text-base text-gray-500 font-normal">/mo</span></div>
+                    <ul class="space-y-3 text-sm text-gray-400 mb-8">
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> 1 active model</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> 1,000 requests/day</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Basic fine-tuning</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> All SDKs</li>
+                    </ul>
+                    <button onclick="window.location.href='/userauth'" class="w-full border border-white/10 text-white py-3 rounded-xl font-bold hover:bg-white/[0.05] transition-all text-sm">Get Started</button>
+                </div>
+                <div class="bg-cyan-500/5 border border-cyan-500/30 rounded-2xl p-8 relative">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-cyan-500 text-black text-xs font-black rounded-full uppercase tracking-wider">Popular</div>
+                    <div class="text-sm font-bold text-cyan-400 uppercase tracking-wider mb-4">Pro</div>
+                    <div class="text-4xl font-black text-white mb-6">$29<span class="text-base text-gray-500 font-normal">/mo</span></div>
+                    <ul class="space-y-3 text-sm text-gray-400 mb-8">
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> 10 active models</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> 100,000 requests/day</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Advanced fine-tuning</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Version history</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Priority support</li>
+                    </ul>
+                    <button onclick="window.location.href='/userauth'" class="w-full bg-cyan-500 text-black py-3 rounded-xl font-black hover:bg-cyan-400 transition-all text-sm shadow-[0_0_20px_rgba(6,182,212,0.3)]">Get Started</button>
+                </div>
+                <div class="bg-white/[0.02] border border-white/5 rounded-2xl p-8">
+                    <div class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Enterprise</div>
+                    <div class="text-4xl font-black text-white mb-6">Custom</div>
+                    <ul class="space-y-3 text-sm text-gray-400 mb-8">
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Unlimited models</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Unlimited requests</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Custom training</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> Dedicated support</li>
+                        <li class="flex items-center gap-2"><span class="text-cyan-400">✓</span> SLA guarantee</li>
+                    </ul>
+                    <button class="w-full border border-white/10 text-white py-3 rounded-xl font-bold hover:bg-white/[0.05] transition-all text-sm">Contact Sales</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="relative z-10 border-t border-white/5 mt-8 py-10">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <span class="text-sm font-black tracking-wider text-white">HYPER<span class="text-cyan-400">NEURAL</span></span>
+            <div class="flex gap-8 text-sm text-gray-500">
+                <a href="/documentation" class="hover:text-white transition-colors">Documentation</a>
+                <a href="#" class="hover:text-white transition-colors">Status</a>
+                <a href="#" class="hover:text-white transition-colors">Privacy</a>
+            </div>
+            <p class="text-xs text-gray-600">© 2025 HyperNeural. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
