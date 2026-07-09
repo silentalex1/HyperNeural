@@ -204,7 +204,21 @@ function extractKnowledgeBase(files) {
   return combined.trim();
 }
 
+async function localGenerate(baseModel, systemPrompt, knowledgeBase, examples, params, userMessage) {
+  const p = clampParams(params);
+  const sys = (systemPrompt || "").trim();
+  const kb = (knowledgeBase || "").trim();
+  const prefix = sys ? `${sys}\n\n` : "";
+  const kbPart = kb ? `Reference:\n${kb}\n\n` : "";
+  const exPart = Array.isArray(examples) && examples.length ? `Examples: ${examples.slice(0,3).map(e => e.user).join(' | ')}\n\n` : "";
+  const reply = `${prefix}${kbPart}${exPart}Model(${baseModel}): ${String(userMessage).trim()}`;
+  return reply;
+}
+
 async function callCustomBackend(baseModel, systemPrompt, knowledgeBase, examples, params, userMessage) {
+  if (!CUSTOM_BACKEND_URL || String(CUSTOM_BACKEND_URL).startsWith('/')) {
+    return localGenerate(baseModel, systemPrompt, knowledgeBase, examples, params, userMessage);
+  }
   const p = clampParams(params);
   const fullSystem = [systemPrompt, knowledgeBase ? `Reference knowledge:\n${knowledgeBase}` : ""]
     .filter(Boolean)
