@@ -7,6 +7,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 process.on("uncaughtException", (err) => {
   console.error("Uncaught exception (server kept running):", err);
@@ -32,6 +34,28 @@ const DATA_DIR = path.join(__dirname, "data");
 const UPLOADS_DIR = path.join(__dirname, "uploads");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const MODELS_FILE = path.join(DATA_DIR, "models.json");
+const S3_BUCKET = process.env.S3_BUCKET || "";
+const S3_REGION = process.env.S3_REGION || "";
+const S3_ENDPOINT = process.env.S3_ENDPOINT || "";
+const S3_ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID || "";
+const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY || "";
+const S3_ENABLED = Boolean(S3_BUCKET && S3_REGION && S3_ACCESS_KEY_ID && S3_SECRET_ACCESS_KEY);
+
+let s3Client = null;
+if (S3_ENABLED) {
+  const s3Config = {
+    region: S3_REGION,
+    credentials: {
+      accessKeyId: S3_ACCESS_KEY_ID,
+      secretAccessKey: S3_SECRET_ACCESS_KEY
+    }
+  };
+  if (S3_ENDPOINT) {
+    s3Config.endpoint = S3_ENDPOINT;
+    s3Config.forcePathStyle = true;
+  }
+  s3Client = new S3Client(s3Config);
+}
 
 const DEFAULT_PARAMS = {
   temperature: 0.8,
@@ -180,7 +204,21 @@ function extractKnowledgeBase(files) {
   return combined.trim();
 }
 
+async function localGenerate(baseModel, systemPrompt, knowledgeBase, examples, params, userMessage) {
+  const p = clampParams(params);
+  const sys = (systemPrompt || "").trim();
+  const kb = (knowledgeBase || "").trim();
+  const prefix = sys ? `${sys}\n\n` : "";
+  const kbPart = kb ? `Reference:\n${kb}\n\n` : "";
+  const exPart = Array.isArray(examples) && examples.length ? `Examples: ${examples.slice(0,3).map(e => e.user).join(' | ')}\n\n` : "";
+  const reply = `${prefix}${kbPart}${exPart}Model(${baseModel}): ${String(userMessage).trim()}`;
+  return reply;
+}
+
 async function callCustomBackend(baseModel, systemPrompt, knowledgeBase, examples, params, userMessage) {
+  if (!CUSTOM_BACKEND_URL || String(CUSTOM_BACKEND_URL).startsWith('/')) {
+    return localGenerate(baseModel, systemPrompt, knowledgeBase, examples, params, userMessage);
+  }
   const p = clampParams(params);
   const fullSystem = [systemPrompt, knowledgeBase ? `Reference knowledge:\n${knowledgeBase}` : ""]
     .filter(Boolean)
@@ -551,6 +589,93 @@ app.post(
     }
   }
 ).set('timeout', 600000);
+
+app.post("/api/models/presign", authMiddleware, async (req, res) => {
+  try {
+    if (!S3_ENABLED) return res.status(501).json({ error: "Presign upload not configured on server." });
+    const { name, description, baseModel, files } = req.body || {};
+    if (!name || !baseModel || !Array.isArray(files) || files.length === 0) return res.status(400).json({ error: "Missing parameters (name, baseModel, files)." });
+
+    const id = `model_${crypto.randomBytes(5).toString("hex")}`;
+    const baseSlug = slugify(name);
+
+    const uploads = [];
+    const filesMeta = [];
+
+    for (const f of files.slice(0, 200)) {
+      const fname = path.basename(String(f.name || "file"));
+      const key = `models/${req.user.username}/${id}/${fname}`;
+      const putCmd = new PutObjectCommand({ Bucket: S3_BUCKET, Key: key, ContentType: "application/octet-stream" });
+      const url = await getSignedUrl(s3Client, putCmd, { expiresIn: 3600 });
+      uploads.push({ name: fname, url, key });
+      filesMeta.push({ name: fname, size: Number(f.size || 0), format: path.extname(fname).replace(".", "").toUpperCase() || "FILE", path: `s3://${S3_BUCKET}/${key}` });
+    }
+
+    const model = await persist(MODELS_FILE, (data) => {
+      const slug = uniqueSlug(data, baseSlug);
+      const record = {
+        id,
+        slug,
+        owner: req.user.username,
+        name: name.trim(),
+        description: (description || "").trim(),
+        baseModel: (baseModel || "").trim(),
+        status: "uploading",
+        conversionError: "",
+        files: filesMeta,
+        systemPrompt: "",
+        knowledgeBase: "",
+        params: { ...DEFAULT_PARAMS },
+        examples: [],
+        requestsToday: 0,
+        avgLatencyMs: null,
+        createdAt: new Date().toISOString(),
+        currentVersion: 1,
+        versions: [
+          {
+            version: 1,
+            label: "v1",
+            createdAt: new Date().toISOString(),
+            baseModel: (baseModel || "").trim(),
+            systemPrompt: "",
+            params: { ...DEFAULT_PARAMS },
+            examples: [],
+            files: filesMeta
+          }
+        ]
+      };
+      data[id] = record;
+      return record;
+    });
+
+    res.json({ model: publicModelDetail(model), uploads });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/models/:idOrSlug/finalize", authMiddleware, async (req, res) => {
+  try {
+    const models = readJSON(MODELS_FILE);
+    const model = Object.values(models).find(
+      (m) => m.id === req.params.idOrSlug || m.slug === req.params.idOrSlug
+    );
+    if (!model) return res.status(404).json({ error: "Model not found." });
+    if (model.owner.toLowerCase() !== req.user.username.toLowerCase()) {
+      return res.status(403).json({ error: "You do not own this model." });
+    }
+
+    const updated = await persist(MODELS_FILE, (data) => {
+      const m = data[model.id];
+      m.status = "active";
+      return m;
+    });
+
+    res.json({ model: publicModelDetail(updated) });
+  } catch (err) {
+    res.status(500).json({ error: "Could not finalize model. " + err.message });
+  }
+});
 
 app.post("/api/models/:idOrSlug/fine-tune", authMiddleware, async (req, res) => {
   const { systemPrompt, knowledgeBase, newVersion, params, examples } = req.body || {};
