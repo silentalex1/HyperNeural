@@ -5,10 +5,7 @@ if (!token || !username) {
   window.location.href = "/auth";
 }
 
-function authHeaders() {
-  return { Authorization: `Bearer ${token}` };
-}
-
+function authHeaders() {\n  return { Authorization: `Bearer ${token}` };\n}\n
 const els = {
   sideAvatar: document.getElementById("side-avatar"),
   sideUsername: document.getElementById("side-username"),
@@ -152,11 +149,39 @@ els.deployForm.addEventListener("submit", async (e) => {
     formData.append("baseModel", document.getElementById("model-base").value.trim());
     selectedFiles.forEach((f) => formData.append("files", f));
 
-    const res = await fetch("/api/models/upload", {
-      method: "POST",
-      headers: authHeaders(),
-      body: formData
-    });
+        const metadata = {
+      name: document.getElementById("model-name").value.trim(),
+      description: document.getElementById("model-description").value.trim(),
+      baseModel: document.getElementById("model-base").value.trim(),
+      files: selectedFiles.map(f => ({ name: f.name, size: f.size }))
+    };
+
+    const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+    const presignRes = await fetch("/api/models/presign", { method: "POST", headers, body: JSON.stringify(metadata) });
+    const presignData = await presignRes.json();
+    if (!presignRes.ok) {
+      els.deployError.textContent = presignData.error || "Could not deploy model.";
+      return;
+    }
+
+    const uploads = presignData.uploads || [];
+    for (let i = 0; i < uploads.length; i++) {
+      const file = selectedFiles[i];
+      const url = uploads[i].url;
+      els.deploySubmit.textContent = `Uploading ${file.name} (${i + 1}/${uploads.length})`;
+      const putRes = await fetch(url, { method: 'PUT', body: file, headers: { 'Content-Type': 'application/octet-stream' } });
+      if (!putRes.ok) {
+        els.deployError.textContent = `Upload failed for ${file.name}`;
+        return;
+      }
+    }
+
+    const finalizeRes = await fetch(`/api/models/${presignData.model.id}/finalize`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+    const data = await finalizeRes.json();
+    if (!finalizeRes.ok) {
+      els.deployError.textContent = data.error || "Could not deploy model.";
+      return;
+    }
     const data = await res.json();
     if (!res.ok) {
       els.deployError.textContent = data.error || "Could not deploy model.";
@@ -255,3 +280,5 @@ els.modelSearch.addEventListener("input", () => {
 
 initSidebar();
 loadModels();
+
+

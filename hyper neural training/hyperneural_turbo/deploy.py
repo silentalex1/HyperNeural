@@ -94,34 +94,57 @@ class HyperDeployer:
         token: str
     ) -> bool:
         try:
-            headers = {
-                "Authorization": f"Bearer {token}"
-            }
-            
+            headers = {}
+            if token:
+                headers["Authorization"] = f"Bearer {token}"
+
             metadata = {
                 "name": name,
                 "description": description,
-                "baseModel": base_model
+                "baseModel": base_model,
+                "files": [{"name": f.name, "size": f.stat().st_size} for f in files]
             }
-            
-            console.print("[yellow]⏳ Uploading model files...[/yellow]")
-            
-            for i, file_path in enumerate(files, 1):
-                console.print(f"[cyan]  [{i}/{len(files)}] Uploading {file_path.name}...[/cyan]")
-                
-                with open(file_path, "rb") as f:
-                    response = requests.post(
-                        f"{self.api_url}/api/models/upload",
-                        headers=headers,
-                        data=metadata,
-                        files={"files": f},
-                        timeout=300
-                    )
-                
-                if response.status_code != 200:
-                    console.print(f"[red]❌ Failed to upload {file_path.name}[/red]")
-                    return False
-            
+
+            console.print("[yellow]⏳ Requesting presigned upload URLs...[/yellow]")
+            resp = requests.post(
+                f"{self.api_url}/api/models/presign",
+                headers=headers,
+                json=metadata,
+                timeout=30
+            )
+            if resp.status_code != 200:
+                console.print(f"[red]❌ Server rejected presign request: {resp.status_code} {resp.text}[/red]")
+                return False
+
+            data = resp.json()
+            uploads = data.get("uploads", [])
+            model = data.get("model")
+            if not uploads or not model:
+                console.print("[red]❌ Presign response missing uploads or model metadata[/red]")
+                return False
+
+            console.print(f"[yellow]📦 Uploading {len(uploads)} files directly to storage...[/yellow]")
+            for i, (upload, file_path) in enumerate(zip(uploads, files), 1):
+                url = upload.get("url")
+                fname = file_path.name
+                console.print(f"[cyan]  [{i}/{len(uploads)}] Uploading {fname}...[/cyan]")
+                with open(file_path, "rb") as fh:
+                    put_headers = {"Content-Type": "application/octet-stream"}
+                    r = requests.put(url, data=fh, headers=put_headers, timeout=600)
+                    if r.status_code < 200 or r.status_code >= 300:
+                        console.print(f"[red]❌ Failed to PUT {fname}: {r.status_code} {r.text}[/red]")
+                        return False
+
+            console.print("[yellow]🔁 Finalizing deployment on server...[/yellow]")
+            finalize_resp = requests.post(
+                f"{self.api_url}/api/models/{model['id']}/finalize",
+                headers=headers,
+                timeout=30
+            )
+            if finalize_resp.status_code != 200:
+                console.print(f"[red]❌ Finalize failed: {finalize_resp.status_code} {finalize_resp.text}[/red]")
+                return False
+
             return True
 
         except Exception as e:
