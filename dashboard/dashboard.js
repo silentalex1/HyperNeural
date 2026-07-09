@@ -145,13 +145,7 @@ els.deployForm.addEventListener("submit", async (e) => {
   els.deploySubmit.disabled = true;
   els.deploySubmit.textContent = "Deploying...";
   try {
-    const formData = new FormData();
-    formData.append("name", document.getElementById("model-name").value.trim());
-    formData.append("description", document.getElementById("model-description").value.trim());
-    formData.append("baseModel", document.getElementById("model-base").value.trim());
-    selectedFiles.forEach((f) => formData.append("files", f));
-
-        const metadata = {
+    const metadata = {
       name: document.getElementById("model-name").value.trim(),
       description: document.getElementById("model-description").value.trim(),
       baseModel: document.getElementById("model-base").value.trim(),
