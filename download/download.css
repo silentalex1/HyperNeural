@@ -1,0 +1,41 @@
+:root {
+    --accent: #4f7cff;
+}
+
+body {
+    background-color: #030304;
+}
+
+.text-accent {
+    color: var(--accent);
+}
+
+.top-right-curve {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 520px;
+    height: 360px;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.bottom-arch-container {
+    position: absolute;
+    bottom: -60px;
+    left: 0;
+    width: 100%;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.bottom-ambient-glow {
+    position: absolute;
+    bottom: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 65%;
+    height: 140px;
+    background: radial-gradient(ellipse at center, rgba(79, 124, 255, 0.1) 0%, rgba(79, 124, 255, 0) 70%);
+    pointer-events: none;
+}

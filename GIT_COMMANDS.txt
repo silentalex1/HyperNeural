@@ -1,0 +1,48 @@
+Git Commands to Push to GitHub
+================================
+
+cd c:\Users\asdww\OneDrive\Desktop\InferForge
+
+git add .
+
+git commit -m "Production-ready InferForge: Real API, WebLLM browser inference, auth, deployment configs"
+
+git branch -M main
+
+git remote add origin https://github.com/silentalex1/HyperNeural.git
+
+git push -u origin main
+
+
+If you already have commits on GitHub:
+=======================================
+
+git pull origin main --rebase
+
+git push -u origin main --force
+
+
+Test Install Commands After Push:
+==================================
+
+Windows:
+powershell -ExecutionPolicy Bypass -c "irm https://raw.githubusercontent.com/silentalex1/HyperNeural/main/scripts/install.ps1 | iex"
+
+macOS/Linux:
+curl -fsSL https://raw.githubusercontent.com/silentalex1/HyperNeural/main/scripts/install.sh | bash
+
+Direct from GitHub:
+pip install git+https://github.com/silentalex1/HyperNeural.git
+
+
+What Works NOW:
+===============
+
+✅ Install from GitHub - pip install git+https://github.com/silentalex1/HyperNeural.git
+✅ Windows install script - installs from GitHub
+✅ macOS/Linux install script - installs from GitHub  
+✅ forge command available after install
+✅ All commands work (pull, chat, train, serve, etc.)
+
+After pushing to GitHub, users can install with:
+curl -fsSL https://raw.githubusercontent.com/silentalex1/HyperNeural/main/scripts/install.sh | bash

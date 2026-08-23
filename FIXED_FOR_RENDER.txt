@@ -1,0 +1,29 @@
+✅ FIXED FOR RENDER DEPLOYMENT
+
+PROBLEM: Render tried to deploy as Node.js, looking for server.js
+
+ROOT CAUSE: package.json in root directory confused Render's auto-detection
+
+SOLUTION: Deleted root package.json (it was for website, not API)
+
+WHAT TO DO NOW:
+1. Push to GitHub
+2. Redeploy on Render
+3. Wait 3-5 minutes
+4. Test: curl https://your-app.onrender.com/health
+
+FILES RENDER NEEDS (all present):
+✅ render.yaml - deployment config
+✅ requirements.txt - Python deps
+✅ Procfile - start command
+✅ runtime.txt - Python 3.11
+✅ pyproject.toml - package info
+✅ src/inferforge/server/api.py - FastAPI app
+
+DEPLOYMENT WILL NOW:
+1. Detect Python (not Node.js)
+2. Install requirements.txt
+3. Run: python -m uvicorn inferforge.server.api:app --host 0.0.0.0 --port $PORT
+4. API live at https://your-app.onrender.com
+
+EVERYTHING IS READY TO DEPLOY!

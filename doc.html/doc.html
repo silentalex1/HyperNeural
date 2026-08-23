@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation | InferForge</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="doc.css">
+    <style>
+      .cmd { color: #ff8a3d; font-family: ui-monospace, monospace; }
+      .beta { color: #ff8a3d; font-weight: 700; }
+      pre.block { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem 1.25rem; overflow-x: auto; font-size: 0.875rem; line-height: 1.6; }
+    </style>
+</head>
+<body class="bg-[#030304] text-white antialiased font-sans flex flex-col min-h-screen relative overflow-x-hidden">
+
+    <nav class="flex justify-between items-center max-w-5xl mx-auto w-full px-6 py-8 relative z-10">
+        <span class="font-bold text-xl tracking-tight">InferForge</span>
+        <a href="../index.html" class="text-sm text-gray-500 hover:text-white transition-colors">Go back</a>
+    </nav>
+
+    <main class="flex-grow max-w-3xl mx-auto w-full px-6 pb-20 relative z-10">
+        <h1 class="text-5xl font-extrabold mb-4 tracking-tight">Documentation</h1>
+        <p class="text-gray-400 text-lg mb-12">CLI, InferForge <span class="beta">beta</span>, training, and API.</p>
+
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">Install</h2>
+            <pre class="block cmd">powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
+bash ./scripts/install.sh
+pip install -e .</pre>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">Commands</h2>
+            <pre class="block">
+<span class="cmd">forge import ollama</span>     Import local Ollama models
+<span class="cmd">forge list</span>              List registered models
+<span class="cmd">forge train</span>             Train / rebuild InferForge beta
+<span class="cmd">forge chat</span>              Open InferForge beta chat UI
+<span class="cmd">forge run &lt;model&gt;</span>       Chat with any model
+<span class="cmd">run &lt;model&gt;</span>             Shortcut for forge run
+<span class="cmd">forge create &lt;name&gt;</span>     Create a derived model
+<span class="cmd">forge show &lt;model&gt;</span>      Model details
+<span class="cmd">forge pull &lt;hf-id&gt;</span>      Pull from Hugging Face
+<span class="cmd">forge embedd &lt;model&gt;</span>    Embed weights into InferForge
+<span class="cmd">forge serve</span>             OpenAI-compatible API :11435
+<span class="cmd">forge paths</span>             Data / config locations
+<span class="cmd">forge version</span>           Version
+</pre>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">InferForge <span class="beta">beta</span></h2>
+            <p class="text-gray-400 mb-4">Own coding model (Ollama base + InferForge curriculum). Not labeled as the base model in chat.</p>
+            <pre class="block cmd">forge train
+forge chat
+forge run inferforge-beta</pre>
+            <p class="text-gray-400 mt-4 text-sm">Agent tools: create_file, edit_file, delete_file, read_file, list_dir, run_command</p>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">Train</h2>
+            <pre class="block cmd">forge train
+forge train --base qwen2.5-coder:7b
+forge train my-model --data examples.json --base llama3.1:8b
+forge train --export-dataset coding.json</pre>
+        </section>
+
+        <section class="mb-12">
+            <h2 class="text-2xl font-bold mb-4">API</h2>
+            <pre class="block cmd">forge serve
+# GET  http://127.0.0.1:11435/v1/models
+# POST http://127.0.0.1:11435/v1/chat/completions
+# POST http://127.0.0.1:11435/api/chat
+# GET  http://127.0.0.1:11435/health</pre>
+        </section>
+    </main>
+
+    <script src="doc.js"></script>
+</body>
+</html>

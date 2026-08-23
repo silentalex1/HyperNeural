@@ -1,0 +1,17 @@
+# InferForge default config (reference)
+# Runtime settings are stored in the user config dir — see `forge paths`.
+
+[server]
+host = "127.0.0.1"
+port = 11435
+
+[ollama]
+host = "http://127.0.0.1:11434"
+
+[ui]
+animation = true
+theme = "forge"
+
+[engine]
+# auto | ollama | native (native = future)
+backend = "auto"
