@@ -4,7 +4,6 @@ import sys
 
 import click
 from rich.console import Console
-from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
@@ -32,6 +31,22 @@ from inferforge.commands.apikey_cmd import apikey_command
 from inferforge.commands.compare_cmd import compare_command
 from inferforge.commands.cache_cmd import cache_command
 from inferforge.commands.stats_cmd import stats_command
+from inferforge.commands.version_cmd import model_group as model_command
+from inferforge.commands.monitor_cmd import monitor_group as monitor_command
+from inferforge.commands.platform_optimize_cmd import platform_optimize_group as platform_optimize_command
+from inferforge.commands.plugin_cmd import plugin_command
+from inferforge.commands.preload_cmd import preload_command
+from inferforge.commands.curriculum_cmd import curriculum_command
+from inferforge.commands.docker_cmd import docker_command
+from inferforge.commands.git_cmd import git_command
+from inferforge.commands.learn_cmd import learn_command
+from inferforge.commands.recipe_cmd import recipe_command
+from inferforge.commands.team_cmd import team_command
+from inferforge.commands.test_cmd import test_command
+from inferforge.commands.explore_cmd import explore_command
+from inferforge.commands.generate_data_cmd import generate_data_command
+from inferforge.commands.optimize_cmd import optimize_command
+from inferforge.commands.doctor_cmd import doctor_command
 
 
 @click.group(
@@ -79,20 +94,22 @@ forge.add_command(apikey_command)
 forge.add_command(compare_command)
 forge.add_command(cache_command)
 forge.add_command(stats_command)
-
-
-@click.command(
-    "run",
-    context_settings={"help_option_names": ["-h", "--help"]},
-)
-@click.argument("model")
-@click.option("--system", default=None, help="Optional system prompt.")
-@click.option("--no-animation", is_flag=True, help="Skip the boot animation.")
-@click.option("--verbose", "-v", is_flag=True, help="Extra diagnostics.")
-def run_cmd(model: str, system: str | None, no_animation: bool, verbose: bool) -> None:
-    """Run a model chat session: run <model>"""
-    ctx = click.Context(run_command)
-    ctx.invoke(run_command, model=model, system=system, no_animation=no_animation, verbose=verbose)
+forge.add_command(model_command)
+forge.add_command(monitor_command)
+forge.add_command(platform_optimize_command)
+forge.add_command(plugin_command)
+forge.add_command(preload_command)
+forge.add_command(curriculum_command)
+forge.add_command(docker_command)
+forge.add_command(git_command)
+forge.add_command(learn_command)
+forge.add_command(recipe_command)
+forge.add_command(team_command)
+forge.add_command(test_command)
+forge.add_command(explore_command)
+forge.add_command(generate_data_command)
+forge.add_command(optimize_command)
+forge.add_command(doctor_command)
 
 
 def _show_all_commands(console: Console) -> None:
@@ -103,34 +120,57 @@ def _show_all_commands(console: Console) -> None:
         ("remove", "Remove a model from the registry"),
         ("run", "Run a model chat session"),
         ("chat", "Open the InferForge beta chat UI"),
-        ("serve", "Start the InferForge API server"),
-        ("show", "Show model details or version info"),
-        ("version", "Show InferForge version"),
-        ("paths", "Show InferForge file paths"),
-        ("storage", "Manage model storage"),
-        ("remote", "Manage remote model registries"),
+        ("serve", "Start the OpenAI-compatible API server"),
         ("create", "Create a new model from scratch"),
-        ("train", "Train/fine-tune InferForge beta"),
+        ("train", "Train or fine-tune models with the Nexara DSL"),
         ("embedd", "Embed model weights for portable use"),
         ("nexara", "Nexara AI-native programming language"),
         ("benchmark", "Performance benchmarking and comparison"),
         ("registry", "Model registry and remote sync"),
-        ("web", "Browser-based AI (no servers, GitHub-friendly!)"),
+        ("web", "Browser-based AI deployment with WebGPU"),
+        ("profile", "Manage configuration profiles for workflows"),
+        ("plugin", "Manage custom plugins and extensions"),
+        ("template", "Manage reusable prompt templates"),
+        ("compare", "Side-by-side model comparison"),
+        ("optimize", "Quantization optimizer for your hardware"),
+        ("platform-optimize", "Apple Silicon and Windows GPU tuning"),
+        ("cache", "Manage the smart caching layer"),
+        ("preload", "Preload models and keep them hot in memory"),
+        ("stats", "Usage analytics and performance metrics"),
+        ("api-key", "Secure provider API key management"),
+        ("model", "Version history, diff, tag, and rollback"),
+        ("monitor", "Live training monitor dashboard"),
+        ("curriculum", "Build multi-stage training curriculums"),
+        ("generate-data", "Synthetic training data generation"),
+        ("test", "Model quality testing and regression suite"),
+        ("explore", "Interactive model explorer TUI"),
+        ("team", "Private team model registry"),
+        ("recipe", "Community setup recipes"),
+        ("learn", "Interactive tutorials: basics, training, deployment"),
+        ("docker", "Container builds and Kubernetes deploys"),
+        ("git", "Commit messages, reviews, changelogs, PR summaries"),
+        ("doctor", "Environment diagnostics and GPU auto-fix"),
+        ("storage", "Manage model storage backends"),
+        ("remote", "Manage remote model registries"),
+        ("show", "Show model details"),
+        ("paths", "Show InferForge file paths"),
+        ("version", "Show InferForge version"),
+        ("help", "AI-assisted help for any command"),
     ]
-    
+
     table = Table(
         title="Available Commands",
         show_header=True,
         header_style="bold dark_orange",
         border_style="dim",
-        padding=(0, 1)
+        padding=(0, 1),
     )
     table.add_column("Command", style="cyan", no_wrap=True)
     table.add_column("Description", style="white")
-    
+
     for cmd, desc in commands:
         table.add_row(f"forge {cmd}", desc)
-    
+
     console.print(table)
     console.print()
     console.print("[dim]Use [bold]forge <command> --help[/] for detailed command help.")

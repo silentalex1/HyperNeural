@@ -7,7 +7,6 @@ echo ""
 
 if ! command -v python3 &> /dev/null; then
     echo "Python 3 not found. Installing..."
-    
     if [[ "$OSTYPE" == "darwin"* ]]; then
         if command -v brew &> /dev/null; then
             brew install python@3.11
@@ -16,8 +15,17 @@ if ! command -v python3 &> /dev/null; then
             exit 1
         fi
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        sudo apt-get update
-        sudo apt-get install -y python3 python3-pip
+        if command -v apt-get &> /dev/null; then
+            sudo apt-get update
+            sudo apt-get install -y python3 python3-pip
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y python3 python3-pip
+        elif command -v pacman &> /dev/null; then
+            sudo pacman -S --noconfirm python python-pip
+        else
+            echo "Unsupported distribution. Install Python 3.11+ manually."
+            exit 1
+        fi
     fi
 fi
 
@@ -28,8 +36,8 @@ if pip3 show inferforge &> /dev/null; then
     echo "Upgrading InferForge..."
     python3 -m pip install --upgrade inferforge
 else
-    echo "Installing from GitHub..."
-    python3 -m pip install git+https://github.com/silentalex1/HyperNeural.git
+    echo "Installing InferForge from PyPI..."
+    python3 -m pip install inferforge
 fi
 
 echo ""

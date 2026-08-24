@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 
 export interface Model {
   name: string
+  label?: string
   size: number
   format: string
   family: string
@@ -10,11 +11,42 @@ export interface Model {
   meta?: Record<string, any>
 }
 
+const embeddedModels: Model[] = [
+  {
+    name: 'inferforge-beta',
+    label: 'InferForge Beta',
+    size: 4700000000,
+    format: 'gguf',
+    family: 'forge',
+    capabilities: ['chat', 'tools', 'code'],
+    status: 'ready',
+  },
+  {
+    name: 'prysmisai-fast:latest',
+    label: 'PrysmisAI Fast',
+    size: 3800000000,
+    format: 'gguf',
+    family: 'prysmis',
+    capabilities: ['chat', 'code'],
+    status: 'ready',
+  },
+  {
+    name: 'glm-5.2:cloud',
+    label: 'GLM 5.2 Cloud',
+    size: 0,
+    format: 'remote',
+    family: 'glm',
+    capabilities: ['chat', 'code', 'vision'],
+    status: 'ready',
+  },
+]
+
 interface ModelContextType {
   models: Model[]
   currentModel: Model | null
   loading: boolean
   error: string | null
+  serverOnline: boolean
   fetchModels: () => Promise<void>
   selectModel: (name: string) => void
   refreshModels: () => Promise<void>
@@ -23,39 +55,47 @@ interface ModelContextType {
 const ModelContext = createContext<ModelContextType | undefined>(undefined)
 
 export function ModelProvider({ children }: { children: ReactNode }) {
-  const [models, setModels] = useState<Model[]>([])
-  const [currentModel, setCurrentModel] = useState<Model | null>(null)
+  const [models, setModels] = useState<Model[]>(embeddedModels)
+  const [currentModel, setCurrentModel] = useState<Model | null>(embeddedModels[0])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [serverOnline, setServerOnline] = useState(false)
 
   const fetchModels = async () => {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch('http://127.0.0.1:11435/v1/models')
+      const response = await fetch('https://api.inferforge.com/v1/models', { signal: AbortSignal.timeout(5000) })
       if (!response.ok) throw new Error('Failed to fetch models')
       const data = await response.json()
-      
-      // Transform API response to Model[]
-      const modelList = data.data?.map((m: any) => ({
+
+      const modelList: Model[] = data.data?.map((m: any) => ({
         name: m.id || m.name,
+        label: m.label || m.name,
         size: m.size || 0,
-        format: m.format || 'unknown',
+        format: m.format || 'gguf',
         family: m.family || 'unknown',
-        capabilities: m.capabilities || [],
+        capabilities: m.capabilities || ['chat', 'code'],
         status: 'ready' as const,
         meta: m.meta || {},
       })) || []
-      
-      setModels(modelList)
-      
-      // Select first model if none selected
-      if (!currentModel && modelList.length > 0) {
-        setCurrentModel(modelList[0])
+
+      if (modelList.length > 0) {
+        setModels(modelList)
+        setServerOnline(true)
+        setCurrentModel(prev => {
+          const match = modelList.find(m => m.name === prev?.name)
+          return match ?? modelList.find(m => m.name === 'inferforge-beta') ?? modelList[0]
+        })
+      } else {
+        setServerOnline(false)
+        setModels(embeddedModels)
+        setCurrentModel(prev => prev ?? embeddedModels[0])
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
-      console.error('Failed to fetch models:', err)
+    } catch {
+      setServerOnline(false)
+      setModels(embeddedModels)
+      setCurrentModel(prev => prev ?? embeddedModels[0])
     } finally {
       setLoading(false)
     }
@@ -75,13 +115,6 @@ export function ModelProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchModels()
-    
-    // Restore selected model from localStorage
-    const saved = localStorage.getItem('inferforge-current-model')
-    if (saved) {
-      const model = models.find(m => m.name === saved)
-      if (model) setCurrentModel(model)
-    }
   }, [])
 
   return (
@@ -91,6 +124,7 @@ export function ModelProvider({ children }: { children: ReactNode }) {
         currentModel,
         loading,
         error,
+        serverOnline,
         fetchModels,
         selectModel,
         refreshModels,

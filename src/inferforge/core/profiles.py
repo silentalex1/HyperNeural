@@ -28,6 +28,17 @@ class ProfileManager:
                     "backend": "ollama",
                     "host": "http://localhost:11434",
                     "timeout": 120,
+                },
+                "gpu-dev": {
+                    "backend": "native",
+                    "gpu_layers": 35,
+                    "context_length": 8192,
+                    "threads": 8,
+                },
+                "cpu-prod": {
+                    "backend": "ollama",
+                    "threads": 8,
+                    "context_length": 4096,
                 }
             }
             self._save_profiles()

@@ -24,11 +24,16 @@ class TemplateManager:
                 self.templates = json.load(f)
         else:
             self.templates = {
-                "code-review": "Review this code:\n{code}\n\nFocus on: {aspects}",
-                "debug": "Help me debug this code:\n{code}\n\nError: {error}",
-                "explain": "Explain this code:\n{code}",
-                "optimize": "Optimize this code for performance:\n{code}",
-                "translate": "Translate this code from {from_lang} to {to_lang}:\n{code}",
+                "code-review": "Review this code:\n{code}\n\nFocus on: {aspects}\n\nProvide specific suggestions for improvement.",
+                "debug": "Help me debug this code:\n{code}\n\nError: {error}\n\nExplain the issue and provide a fix.",
+                "explain": "Explain this code in detail:\n{code}\n\nBreak down what each part does and why.",
+                "optimize": "Optimize this code for performance:\n{code}\n\nSuggest improvements for speed and memory usage.",
+                "translate": "Translate this code from {from_lang} to {to_lang}:\n{code}\n\nMaintain the same functionality.",
+                "summarize": "Summarize the following text:\n{text}\n\nProvide a concise summary covering key points.",
+                "extract": "Extract {entity_type} from this text:\n{text}\n\nList all instances found.",
+                "generate": "Generate {content_type} about {topic}:\n\nRequirements: {requirements}",
+                "refactor": "Refactor this code for better maintainability:\n{code}\n\nImprove structure and readability.",
+                "test": "Write unit tests for this code:\n{code}\n\nCover edge cases and common scenarios.",
             }
             self._save_templates()
     
@@ -123,7 +128,8 @@ def delete_template(name: str):
 @template_command.command("use")
 @click.argument("name")
 @click.option("--var", "-v", multiple=True, help="Template variables (key=value)")
-def use_template(name: str, var: tuple[str, ...]):
+@click.option("--model", default="inferforge-beta", help="Model to use for generation")
+def use_template(name: str, var: tuple[str, ...], model: str):
     """Use a template with variables."""
     manager = TemplateManager()
     template = manager.get_template(name)
@@ -142,5 +148,26 @@ def use_template(name: str, var: tuple[str, ...]):
         result = template.format(**variables)
         console.print(f"\n[bold]Generated Prompt:[/]\n")
         console.print(result)
+        
+        if click.confirm(f"\nRun this prompt with {model}?"):
+            from inferforge.engine import get_router
+            from inferforge.core.registry import Registry
+            
+            reg = Registry()
+            record = reg.get(model)
+            
+            if record:
+                router = get_router()
+                engine = router.resolve(record)
+                
+                try:
+                    response = engine.chat([{"role": "user", "content": result}])
+                    console.print(f"\n[bold]Response:[/]\n")
+                    console.print(response)
+                except Exception as e:
+                    console.print(f"[red]Error running model:[/] {e}")
+            else:
+                console.print(f"[red]Model '{model}' not found[/]")
+                
     except KeyError as e:
         console.print(f"[red]Missing variable: {e}[/]")

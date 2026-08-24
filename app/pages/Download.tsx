@@ -1,136 +1,187 @@
-import Nav from '../components/Nav'
-import Footer from '../components/Footer'
+import { useState } from 'react'
 
 const platforms = [
-  { label: 'Windows', cmd: 'powershell -ExecutionPolicy Bypass -File .\\scripts\\install.ps1' },
-  { label: 'macOS / Linux', cmd: 'bash ./scripts/install.sh' },
-  { label: 'pip (editable)', cmd: 'pip install -e .' }
+  {
+    label: 'Windows',
+    note: 'PowerShell',
+    cmd: 'powershell -c "irm https://raw.githubusercontent.com/silentalex1/HyperNeural/main/scripts/install.ps1 | iex"',
+  },
+  {
+    label: 'macOS / Linux',
+    note: 'curl',
+    cmd: 'curl -fsSL https://raw.githubusercontent.com/silentalex1/HyperNeural/main/scripts/install.sh | bash',
+  },
+  {
+    label: 'pip',
+    note: 'Any platform with Python 3.11+',
+    cmd: 'pip install git+https://github.com/silentalex1/HyperNeural.git',
+  },
 ]
 
 const quickstart = [
-  'forge import ollama',
-  'forge train',
-  'forge chat',
-  'forge list',
-  'forge serve'
+  { cmd: 'forge --version', desc: 'Verify the installation' },
+  { cmd: 'forge import ollama', desc: 'Import models you already have' },
+  { cmd: 'forge pull qwen2.5-coder:7b', desc: 'Or download a new one' },
+  { cmd: 'forge train', desc: 'Build InferForge beta' },
+  { cmd: 'forge chat', desc: 'Talk to your model' },
 ]
 
 const buildTargets = [
-  { name: 'Desktop', desc: 'Embed AI into desktop applications' },
+  { name: 'Desktop', desc: 'Embed AI into desktop apps' },
   { name: 'Website', desc: 'OpenAI-compatible API for web apps' },
   { name: 'Discord', desc: 'AI-powered Discord bots' },
   { name: 'Node.js', desc: 'Server-side AI integration' },
-  { name: 'Python', desc: 'Python projects and scripts' },
-  { name: 'CLI', desc: 'forge chat · train · run · serve' }
+  { name: 'Python', desc: 'Scripts and notebooks' },
+  { name: 'CLI', desc: 'chat, train, run, serve' },
 ]
 
 export default function Download() {
+  const [tab, setTab] = useState(0)
+  const [copied, setCopied] = useState(false)
+  const active = platforms[tab]
+
+  const copyCmd = () => {
+    navigator.clipboard.writeText(active.cmd)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1800)
+  }
+
   return (
-    <div className="min-h-screen bg-[#030304] text-white antialiased font-sans flex flex-col justify-between relative overflow-x-hidden">
-      <div className="top-right-curve pointer-events-none">
-        <svg viewBox="0 0 600 400" preserveAspectRatio="none" className="w-full h-full">
-          <defs>
-            <linearGradient id="topRightGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#4f7cff" stopOpacity="0" />
-              <stop offset="40%" stopColor="#4f7cff" stopOpacity="0.5" />
-              <stop offset="80%" stopColor="#8daaff" stopOpacity="0.95" />
-              <stop offset="100%" stopColor="#4f7cff" stopOpacity="0.2" />
-            </linearGradient>
-            <filter id="topRightGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="12" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          <path d="M 600,0 C 460,130 220,250 0,380" fill="none" stroke="url(#topRightGrad)" strokeWidth="2.5" filter="url(#topRightGlow)" />
-        </svg>
-      </div>
+    <div className="relative overflow-x-hidden">
+      <div className="absolute inset-0 bg-grid-pattern bg-[size:44px_44px] opacity-[0.03] pointer-events-none" />
 
-      <Nav variant="sub" />
-
-      <main className="max-w-3xl mx-auto w-full px-6 py-10 relative z-10 my-auto">
-        <h1 className="text-4xl font-extrabold mb-4 text-center tracking-tight">Install InferForge</h1>
-        <p className="text-center text-gray-400 mb-12 text-sm">
-          Clone the repo, run the installer, then <code className="text-orange-400">forge chat</code>
-        </p>
-
-        <div className="space-y-4 mb-16">
-          {platforms.map(p => (
-            <div key={p.label} className="group flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white/[0.02] hover:bg-white/[0.04] transition-all duration-300 px-6 rounded-2xl border border-white/[0.06] hover:border-accent/30 shadow-lg py-4">
-              <span className="text-accent font-bold font-mono text-sm tracking-wide w-32 shrink-0">{p.label}</span>
-              <code className="text-gray-300 font-mono text-xs sm:text-sm bg-black/40 px-4 py-2.5 rounded-xl border border-white/[0.05] selection:bg-accent flex-1 overflow-x-auto">{p.cmd}</code>
-            </div>
-          ))}
+      <main className="max-w-3xl mx-auto w-full px-6 py-16 relative z-10">
+        <div className="text-center mb-14">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Install InferForge</h1>
+          <p className="text-gray-500 text-base">
+            One command, then <code className="text-orangeAccent font-mono text-sm">forge chat</code>
+          </p>
         </div>
+
+        {/* Installer — tabbed, no scrollbars */}
+        <section className="mb-16">
+          <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl overflow-hidden shadow-[0_8px_40px_-12px_rgba(0,0,0,0.6)]">
+            {/* Tab bar */}
+            <div className="flex items-center gap-1 px-3 pt-3 pb-0 border-b border-white/[0.06] bg-black/30">
+              {platforms.map((p, i) => (
+                <button
+                  key={p.label}
+                  onClick={() => { setTab(i); setCopied(false) }}
+                  className={`px-4 py-2.5 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 -mb-px ${
+                    tab === i
+                      ? 'text-white border-accent bg-white/[0.04]'
+                      : 'text-gray-500 border-transparent hover:text-gray-300'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+              <span className="ml-auto text-[11px] text-gray-600 hidden sm:block pr-2">{active.note}</span>
+            </div>
+
+            {/* Command */}
+            <div className="p-5">
+              <div className="group flex items-center gap-3 bg-black/60 border border-white/[0.07] rounded-xl px-4 py-3.5">
+                <span className="text-accent font-mono text-sm select-none shrink-0">$</span>
+                <code className="font-mono text-[13px] text-gray-200 break-all leading-relaxed selection:bg-accent">
+                  {active.cmd}
+                </code>
+                <button
+                  onClick={copyCmd}
+                  aria-label="Copy command"
+                  className={`ml-auto shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 rounded-lg border transition-all duration-200 ${
+                    copied
+                      ? 'bg-green-400/10 border-green-400/25 text-green-400'
+                      : 'bg-white/[0.06] border-white/[0.08] text-gray-400 hover:text-white hover:bg-white/[0.1]'
+                  }`}
+                >
+                  {copied ? (
+                    <>
+                      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.4" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <rect x="9" y="9" width="11" height="11" rx="2" />
+                        <path d="M5 15V5a2 2 0 012-2h10" strokeLinecap="round" />
+                      </svg>
+                      Copy
+                    </>
+                  )}
+                </button>
+              </div>
+              <p className="text-xs text-gray-600 mt-3 px-1">
+                The script checks for Python 3.11+ and installs it if missing. Verify with <code className="font-mono text-gray-500">forge --version</code>.
+              </p>
+            </div>
+          </div>
+        </section>
 
         <section className="mb-16">
           <h2 className="text-xl font-semibold mb-5 text-gray-300 tracking-tight">Quick start</h2>
-          <div className="bg-white/[0.02] p-6 rounded-2xl border border-white/[0.06] shadow-lg font-mono text-sm space-y-2">
-            {quickstart.map(cmd => (
-              <div key={cmd} className="text-orange-400">
-                <span className="text-gray-600">$</span> {cmd}
+          <div className="bg-white/[0.02] p-6 rounded-2xl border border-white/[0.06] shadow-lg font-mono text-sm space-y-2.5">
+            {quickstart.map(q => (
+              <div key={q.cmd} className="flex items-baseline gap-3 cli-line">
+                <span className="text-accent">$</span>
+                <code className="text-orangeAccent">{q.cmd}</code>
+                <span className="text-gray-600 font-sans text-xs hidden sm:inline">{q.desc}</span>
               </div>
             ))}
           </div>
         </section>
 
+        <section className="mb-16">
+          <h2 className="text-xl font-semibold mb-5 text-gray-300 tracking-tight">Requirements</h2>
+          <div className="bg-white/[0.02] p-6 rounded-2xl border border-white/[0.06] grid sm:grid-cols-3 gap-5 text-sm">
+            <div>
+              <div className="text-white font-medium mb-1">Python 3.11+</div>
+              <div className="text-gray-500 text-xs leading-relaxed">The installer can set this up for you if missing.</div>
+            </div>
+            <div>
+              <div className="text-white font-medium mb-1">Ollama (optional)</div>
+              <div className="text-gray-500 text-xs leading-relaxed">Import existing models or let Forge download fresh ones.</div>
+            </div>
+            <div>
+              <div className="text-white font-medium mb-1">8GB+ RAM</div>
+              <div className="text-gray-500 text-xs leading-relaxed">More memory means larger models. GPU optional.</div>
+            </div>
+          </div>
+        </section>
+
         <section>
-          <h2 className="text-xl font-semibold mb-5 text-gray-300 tracking-tight">Changelog</h2>
-          <div className="bg-white/[0.02] p-6 rounded-2xl border border-white/[0.06] shadow-lg space-y-3">
-            <p className="text-gray-300 font-medium flex items-center gap-3">
-              <span className="text-accent font-bold">[+]</span> InferForge beta model + forge chat
-            </p>
-            <p className="text-gray-300 font-medium flex items-center gap-3">
-              <span className="text-accent font-bold">[+]</span> Agentic file tools (create / edit / delete)
-            </p>
-            <p className="text-gray-300 font-medium flex items-center gap-3">
-              <span className="text-accent font-bold">[+]</span> Improved forge train curriculum
-            </p>
-            <p className="text-gray-300 font-medium flex items-center gap-3">
-              <span className="text-accent font-bold">[+]</span> Official beta release
-            </p>
+          <h2 className="text-xl font-semibold mb-5 text-gray-300 tracking-tight">What you get in v0.2.0</h2>
+          <div className="bg-white/[0.02] p-6 rounded-2xl border border-white/[0.06] space-y-3.5">
+            {[
+              'InferForge beta coding model with forge chat',
+              'Agentic file tools — create, edit, delete safely',
+              '38 CLI commands across models, training, benchmarking',
+              'OpenAI-compatible local API on port 11435',
+            ].map(item => (
+              <p key={item} className="text-gray-400 text-sm flex items-start gap-3">
+                <svg className="w-4 h-4 mt-0.5 shrink-0" width="16" height="16" fill="none" stroke="#22c55e" strokeWidth="2.4" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                {item}
+              </p>
+            ))}
           </div>
         </section>
 
         <section className="mt-16">
-          <h2 className="text-xl font-semibold mb-5 text-gray-300 tracking-tight">Build Everywhere</h2>
+          <h2 className="text-xl font-semibold mb-5 text-gray-300 tracking-tight">Build everywhere</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {buildTargets.map(t => (
-              <div key={t.name} className="bg-white/[0.02] p-4 rounded-xl border border-white/[0.06] hover:border-accent/30 transition-all cursor-pointer group hover:bg-white/[0.04]">
-                <div className="text-accent font-bold text-sm mb-2">{t.name}</div>
-                <div className="text-gray-400 text-xs">{t.desc}</div>
+              <div key={t.name} className="bg-white/[0.02] p-5 rounded-xl border border-white/[0.06] hover:border-accent/30 transition-all group hover:bg-white/[0.04]">
+                <div className="text-accent font-bold text-sm mb-1.5">{t.name}</div>
+                <div className="text-gray-500 text-xs leading-relaxed">{t.desc}</div>
               </div>
             ))}
           </div>
         </section>
       </main>
-
-      <div className="bottom-arch-container pointer-events-none">
-        <svg viewBox="0 0 1440 200" preserveAspectRatio="none" className="w-full h-[140px]">
-          <defs>
-            <linearGradient id="bottomCurveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#4f7cff" stopOpacity="0" />
-              <stop offset="20%" stopColor="#4f7cff" stopOpacity="0.4" />
-              <stop offset="70%" stopColor="#8daaff" stopOpacity="0.95" />
-              <stop offset="90%" stopColor="#4f7cff" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#4f7cff" stopOpacity="0" />
-            </linearGradient>
-            <filter id="bottomCurveGlow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="12" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          <path d="M 0,180 Q 850,40 1440,160" fill="none" stroke="url(#bottomCurveGrad)" strokeWidth="2.5" filter="url(#bottomCurveGlow)" />
-        </svg>
-        <div className="bottom-ambient-glow" />
-      </div>
-
-      <Footer variant="sub" />
     </div>
   )
 }

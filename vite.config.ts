@@ -17,7 +17,6 @@ export default defineConfig({
   },
   server: {
     port: 3000,
-    open: true,
-    historyApiFallback: true
+    open: true
   }
 })

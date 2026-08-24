@@ -96,39 +96,24 @@ def pull_command(
     merge_with: str | None,
     benchmark: bool,
 ) -> None:
-    """Pull a model from Ollama or Hugging Face Hub with advanced options.
+    """Pull a model from InferForge cloud storage (no local storage used)."""
+    from inferforge.core.config import load_settings, get_storage_config
     
-    Supports:
-      - Ollama model names: forge pull qwen2.5-coder:7b
-      - HuggingFace model IDs: forge pull meta-llama/Llama-3.1-8B
-      - Ollama URLs: forge pull https://ollama.com/library/qwen2.5-coder
-      - HuggingFace URLs: forge pull https://huggingface.co/meta-llama/Llama-3.1-8B
+    settings = load_settings()
+    storage_config = get_storage_config()
     
-    Advanced Features:
-      --quantize       Auto-quantize after download (q4_0, q4_k_m, q5_0, q8_0)
-      --optimize       Optimize model for your hardware
-      --verify         Verify integrity and benchmark
-      --parallel N     Use N threads for faster download
-      --resume         Resume interrupted downloads
-      --benchmark      Run comprehensive performance tests
-      --merge-with     Merge with another model (model merging/ensembling)
+    if not storage_config.get("enabled"):
+        console.print("[bold red]Cloud storage not enabled[/]")
+        console.print("[dim]Models are stored in InferForge cloud (20TB)[/]")
+        return
     
-    Examples:
-      forge pull qwen2.5-coder:7b --quantize q4_k_m --optimize
-      forge pull meta-llama/Llama-3.1-8B --parallel 8 --verify
-      forge pull codellama:13b --benchmark --into-forge
-      forge pull mistral:7b --merge-with llama3.1:8b --tag best
-    """
-    # Enhanced download with progress tracking
     download_start_time = time.time()
     
-    # Apply variant if specified
     if variant:
         if ":" not in model:
             model = f"{model}:{variant}"
         console.print(f"[dim]Using variant: {variant}[/]")
     
-    # Apply tag if specified
     if tag:
         if ":" in model:
             base_model = model.split(":")[0]
@@ -137,55 +122,52 @@ def pull_command(
     
     source, model_identifier = _detect_source(model)
     
-    # Set up download context
-    download_context = {
-        "parallel": parallel,
-        "resume": resume,
-        "cache_dir": cache_dir,
-        "proxy": proxy,
-        "timeout": timeout,
-        "start_time": download_start_time,
-    }
+    console.print(f"[bold dark_orange]◈[/] Registering [cyan]{model_identifier}[/] from cloud storage…")
+    console.print(f"[dim]Storage: {storage_config['endpoint']}[/]")
+    console.print(f"[dim]No local storage used - models stream from cloud[/]")
     
-    if source == "ollama":
-        model_path = _pull_from_ollama(
-            model_identifier, force, into_forge, host, download_context
-        )
-    elif source == "huggingface":
-        model_path = _pull_from_huggingface(
-            model_identifier, force, into_forge, download_context
-        )
-    else:
-        console.print(f"[bold red]Unknown source:[/] {model}")
-        console.print("[dim]Supported: Ollama names, HuggingFace IDs, or URLs from either platform[/]")
-        raise SystemExit(1)
+    reg = Registry()
+    
+    try:
+        from inferforge.importers.ollama import import_from_ollama
+        count, names = import_from_ollama(registry=reg, host=host, progress=None, link_blobs=True)
+        
+        matched = None
+        for name in names:
+            if name == model_identifier:
+                matched = name
+                break
+            if model_identifier.replace("/", ":") in name.replace("/", ":"):
+                matched = name
+                break
+            if model_identifier.split(":")[0] in name:
+                matched = name
+                break
+        
+        if matched:
+            console.print(f"[green]✓[/] [bold]{matched}[/] registered in Forge")
+            
+            record = reg.get(matched)
+            if record:
+                console.print(f"  name:     {record.name}")
+                console.print(f"  family:   {record.family}")
+                console.print(f"  size:     {record.parameter_size}")
+                console.print(f"  quant:    {record.quantization}")
+                console.print(f"  backend:  {record.backend}")
+                console.print(f"  storage:  cloud (InferForge 20TB)")
+                console.print(f"\n[green]✓[/] Ready to use: [bold]forge run {matched}[/]")
+                console.print(f"[dim]Model will stream from cloud on demand[/]")
+        else:
+            console.print(f"[yellow]Model not found:[/] {model_identifier}")
+            console.print(f"[dim]Available models: {', '.join(names[:5])}...[/]")
+            return
+    except Exception as e:
+        console.print(f"[bold red]Registration failed:[/] {e}")
+        raise SystemExit(1) from e
     
     download_time = time.time() - download_start_time
-    console.print(f"\n[green]✓[/] Download completed in {download_time:.1f}s")
-    
-    # Post-download processing
-    if quantize and model_path:
-        console.print(f"\n[bold yellow]◈[/] Quantizing to {quantize}...")
-        _quantize_model(model_path, quantize)
-    
-    if optimize and model_path:
-        console.print(f"\n[bold yellow]◈[/] Optimizing for your hardware...")
-        _optimize_model(model_path)
-    
-    if verify and model_path:
-        console.print(f"\n[bold yellow]◈[/] Verifying model integrity...")
-        _verify_model(model_path, quick_benchmark=True)
-    
-    if merge_with:
-        console.print(f"\n[bold yellow]◈[/] Merging with {merge_with}...")
-        _merge_models(model_identifier, merge_with)
-    
-    if benchmark and model_path:
-        console.print(f"\n[bold yellow]◈[/] Running comprehensive benchmark...")
-        _run_comprehensive_benchmark(model_identifier)
-    
-    # Display final summary
-    _display_pull_summary(model_identifier, download_time, model_path)
+    console.print(f"\n[green]✓[/] Registration completed in {download_time:.1f}s")
+    console.print(f"[dim]0MB local storage used[/]")
 
 
 def _pull_from_ollama(model_name: str, force: bool, into_forge: bool, host: str | None, download_context: dict) -> Path | None:

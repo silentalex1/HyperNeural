@@ -1,108 +1,154 @@
 from __future__ import annotations
 
-import json
-import time
 from pathlib import Path
 
 import click
 from rich.console import Console
 from rich.table import Table
 
-from platformdirs import user_data_dir
+from inferforge.core.analytics import get_analytics_manager
 
 console = Console()
 
 
-class UsageStats:
-    def __init__(self):
-        self.data_dir = Path(user_data_dir("inferforge"))
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.stats_file = self.data_dir / "usage_stats.json"
-        self.stats = self._load_stats()
-    
-    def _load_stats(self) -> dict:
-        if self.stats_file.exists():
-            return json.loads(self.stats_file.read_text())
-        return {
-            "total_requests": 0,
-            "total_tokens": 0,
-            "models_used": {},
-            "commands_used": {},
-            "first_use": time.time(),
-            "last_use": time.time()
-        }
-    
-    def _save_stats(self):
-        self.stats_file.write_text(json.dumps(self.stats, indent=2))
-    
-    def record_request(self, model: str, tokens: int, command: str):
-        self.stats["total_requests"] += 1
-        self.stats["total_tokens"] += tokens
-        self.stats["last_use"] = time.time()
-        
-        if model not in self.stats["models_used"]:
-            self.stats["models_used"][model] = {"count": 0, "tokens": 0}
-        self.stats["models_used"][model]["count"] += 1
-        self.stats["models_used"][model]["tokens"] += tokens
-        
-        if command not in self.stats["commands_used"]:
-            self.stats["commands_used"][command] = 0
-        self.stats["commands_used"][command] += 1
-        
-        self._save_stats()
-    
-    def get_summary(self) -> dict:
-        days_active = (time.time() - self.stats["first_use"]) / 86400
-        
-        return {
-            "total_requests": self.stats["total_requests"],
-            "total_tokens": self.stats["total_tokens"],
-            "days_active": days_active,
-            "avg_requests_per_day": self.stats["total_requests"] / max(days_active, 1),
-            "top_model": max(self.stats["models_used"].items(), key=lambda x: x[1]["count"])[0] if self.stats["models_used"] else "None",
-            "top_command": max(self.stats["commands_used"].items(), key=lambda x: x[1])[0] if self.stats["commands_used"] else "None"
-        }
+@click.group("stats")
+def stats_command():
+    """Usage analytics and performance metrics."""
+    pass
 
 
-@click.command("stats")
+@stats_command.command()
 @click.option("--detailed", is_flag=True, help="Show detailed statistics")
-def stats_command(detailed: bool):
-    """Show usage statistics and analytics."""
+def show(detailed: bool):
+    """Show usage statistics."""
+    manager = get_analytics_manager()
     
-    stats = UsageStats()
-    summary = stats.get_summary()
+    model_stats = manager.get_model_stats()
+    command_stats = manager.get_command_stats()
+    error_stats = manager.get_error_stats()
+    daily_stats = manager.get_daily_stats(days=7)
     
-    table = Table(title="InferForge Usage Statistics")
-    table.add_column("Metric", style="cyan")
-    table.add_column("Value", style="yellow")
+    console.print("\n[bold cyan]Usage Statistics[/]\n")
     
-    table.add_row("Total Requests", f"{summary['total_requests']:,}")
-    table.add_row("Total Tokens", f"{summary['total_tokens']:,}")
-    table.add_row("Days Active", f"{summary['days_active']:.1f}")
-    table.add_row("Avg Requests/Day", f"{summary['avg_requests_per_day']:.1f}")
-    table.add_row("Top Model", summary["top_model"])
-    table.add_row("Top Command", summary["top_command"])
+    if model_stats:
+        table = Table(title="Model Usage")
+        table.add_column("Model", style="cyan")
+        table.add_column("Requests", style="yellow")
+        table.add_column("Tokens", style="green")
+        table.add_column("Total Time", style="white")
+        table.add_column("Avg Time", style="magenta")
+        
+        for model, stats in sorted(model_stats.items(), key=lambda x: x[1]["count"], reverse=True):
+            avg_time = stats["time"] / stats["count"] if stats["count"] > 0 else 0
+            table.add_row(
+                model,
+                str(stats["count"]),
+                str(stats["tokens"]),
+                f"{stats['time']:.2f}s",
+                f"{avg_time:.2f}s"
+            )
+        
+        console.print(table)
     
-    console.print(table)
+    if command_stats:
+        console.print("\n[bold]Command Usage[/]\n")
+        for command, stats in sorted(command_stats.items(), key=lambda x: x[1]["count"], reverse=True)[:10]:
+            console.print(f"  {command}: {stats['count']} uses")
     
-    if detailed:
-        console.print("\n[bold]Models Usage:[/]")
-        models_table = Table()
-        models_table.add_column("Model", style="cyan")
-        models_table.add_column("Requests", style="yellow")
-        models_table.add_column("Tokens", style="green")
+    if error_stats and detailed:
+        console.print("\n[bold]Error Statistics[/]\n")
+        for error, stats in sorted(error_stats.items(), key=lambda x: x[1]["count"], reverse=True)[:5]:
+            console.print(f"  {error}: {stats['count']} occurrences")
+    
+    if daily_stats and detailed:
+        console.print("\n[bold]Daily Statistics (Last 7 Days)[/]\n")
+        table = Table()
+        table.add_column("Date", style="cyan")
+        table.add_column("Requests", style="yellow")
+        table.add_column("Tokens", style="green")
+        table.add_column("Errors", style="red")
         
-        for model, data in sorted(stats.stats["models_used"].items(), key=lambda x: x[1]["count"], reverse=True):
-            models_table.add_row(model, str(data["count"]), f"{data['tokens']:,}")
+        for date, stats in sorted(daily_stats.items(), reverse=True):
+            table.add_row(
+                date,
+                str(stats["requests"]),
+                str(stats["tokens"]),
+                str(stats["errors"])
+            )
         
-        console.print(models_table)
-        
-        console.print("\n[bold]Commands Usage:[/]")
-        commands_table = Table()
-        commands_table.add_column("Command", style="cyan")
-        commands_table.add_column("Count", style="yellow")
-        
-        for command, count in sorted(stats.stats["commands_used"].items(), key=lambda x: x[1], reverse=True):
-            commands_table.add_row(command, str(count))
-        
-        console.print(commands_table)
+        console.print(table)
+
+
+@stats_command.command("export")
+@click.option("--format", default="json", help="Export format: json, csv")
+@click.option("--output", "-o", help="Output file path")
+@click.option("--period", type=int, default=30, help="Period in days")
+def stats_export(format: str, output: str | None, period: int):
+    """Export analytics data."""
+    manager = get_analytics_manager()
+    
+    if not output:
+        output = f"inferforge_analytics_{period}d.{format}"
+    
+    export_path = Path(output)
+    
+    if manager.export_analytics(export_path, format):
+        console.print(f"[green]✓[/] Analytics exported to {export_path}")
+    else:
+        console.print("[red]Failed to export analytics[/]")
+
+
+@stats_command.command("performance")
+@click.argument("model", required=False)
+def stats_performance(model: str | None):
+    """Show performance metrics for models."""
+    manager = get_analytics_manager()
+    
+    perf_stats = manager.get_performance_stats(model)
+    
+    if not perf_stats:
+        console.print("[yellow]No performance data available[/]")
+        return
+    
+    console.print(f"\n[bold cyan]Performance Metrics[/]\n")
+    
+    if model:
+        console.print(f"[bold]Model:[/] {model}\n")
+        for metric, values in perf_stats.items():
+            if values:
+                latest = values[-1]
+                avg = sum(v["value"] for v in values) / len(values)
+                console.print(f"  {metric}:")
+                console.print(f"    Latest: {latest['value']:.2f}")
+                console.print(f"    Average: {avg:.2f}")
+                console.print(f"    Samples: {len(values)}")
+    else:
+        for model_name, metrics in perf_stats.items():
+            console.print(f"\n[bold]{model_name}[/]")
+            for metric, values in metrics.items():
+                if values:
+                    latest = values[-1]
+                    console.print(f"  {metric}: {latest['value']:.2f}")
+
+
+@stats_command.command("clear")
+@click.option("--older-than", type=int, help="Clear data older than N days")
+@click.option("--force", is_flag=True, help="Force clear without confirmation")
+def stats_clear(older_than: int | None, force: bool):
+    """Clear analytics data."""
+    manager = get_analytics_manager()
+    
+    if not force:
+        if older_than:
+            if not click.confirm(f"Clear analytics data older than {older_than} days?"):
+                return
+        else:
+            if not click.confirm("Clear all analytics data?"):
+                return
+    
+    manager.clear_analytics(older_than)
+    
+    if older_than:
+        console.print(f"[green]✓[/] Cleared analytics data older than {older_than} days")
+    else:
+        console.print("[green]✓[/] Cleared all analytics data")

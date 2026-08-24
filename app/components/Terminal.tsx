@@ -9,14 +9,14 @@ interface Step {
 
 const sequence: Step[] = [
   { text: 'forge import ollama', type: 'input', delay: 700 },
-  { text: '✓ Imported 12 models', type: 'output', delay: 400 },
+  { text: 'Imported 12 models', type: 'output', delay: 400 },
   { text: 'forge train', type: 'input', delay: 900 },
   { text: 'Training InferForge beta…', type: 'output', delay: 350 },
   { text: '██████████████ 100%', type: 'output', delay: 700 },
   { text: 'forge chat', type: 'input', delay: 800 },
   { text: 'InferForge beta online', type: 'output', delay: 400, color: '#22c55e' },
   { text: 'You → create hello.py', type: 'output', delay: 450, color: '#ff7a18' },
-  { text: '◈ created hello.py', type: 'output', delay: 550, color: '#4f7cff' }
+  { text: 'created hello.py', type: 'output', delay: 550, color: '#4f7cff' }
 ]
 
 export default function Terminal() {

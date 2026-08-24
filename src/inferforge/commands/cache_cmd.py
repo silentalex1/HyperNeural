@@ -128,10 +128,61 @@ def list_command():
 
 
 @cache_command.command("clear")
-def clear_command():
-    """Clear all cached responses."""
+@click.option("--embeddings", is_flag=True, help="Clear only embedding cache")
+@click.option("--responses", is_flag=True, help="Clear only response cache")
+@click.option("--kv", is_flag=True, help="Clear only KV cache")
+def clear_command(embeddings: bool, responses: bool, kv: bool):
+    """Clear cached data."""
     cache = SmartCache()
     
-    if click.confirm("Clear all cached responses?"):
-        cache.clear()
-        console.print("[green]✓[/] Cache cleared")
+    if not any([embeddings, responses, kv]):
+        if click.confirm("Clear all cached responses?"):
+            cache.clear()
+            console.print("[green]✓[/] Cache cleared")
+    else:
+        if responses:
+            if click.confirm("Clear response cache?"):
+                cache.clear()
+                console.print("[green]✓[/] Response cache cleared")
+        
+        if embeddings:
+            embed_cache_dir = cache.cache_dir.parent / "embeddings"
+            if embed_cache_dir.exists():
+                if click.confirm("Clear embedding cache?"):
+                    for f in embed_cache_dir.glob("*.bin"):
+                        f.unlink()
+                    console.print("[green]✓[/] Embedding cache cleared")
+        
+        if kv:
+            kv_cache_dir = cache.cache_dir.parent / "kv_cache"
+            if kv_cache_dir.exists():
+                if click.confirm("Clear KV cache?"):
+                    for f in kv_cache_dir.glob("*.bin"):
+                        f.unlink()
+                    console.print("[green]✓[/] KV cache cleared")
+
+
+@cache_command.command("optimize")
+def optimize_command():
+    """Optimize cache by removing stale entries."""
+    cache = SmartCache()
+    
+    current_time = time.time()
+    stale_threshold = 7 * 24 * 3600  # 7 days
+    
+    stale_keys = []
+    for key, entry in cache.index.items():
+        if current_time - entry.get("last_hit", entry["created"]) > stale_threshold:
+            stale_keys.append(key)
+    
+    if stale_keys:
+        for key in stale_keys:
+            cache_file = cache.cache_dir / f"{key}.txt"
+            if cache_file.exists():
+                cache_file.unlink()
+            del cache.index[key]
+        
+        cache._save_index()
+        console.print(f"[green]✓[/] Removed {len(stale_keys)} stale cache entries")
+    else:
+        console.print("[yellow]No stale entries found[/]")

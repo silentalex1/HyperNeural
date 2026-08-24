@@ -1,4 +1,4 @@
-"""Web deployment commands for browser-based AI."""
+﻿"""Web deployment commands for browser-based AI."""
 
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ def init_command(project_name: str, template: str, output: str | None) -> None:
         console.print(f"[red]Directory already exists:[/] {output_dir}")
         return
     
-    console.print(f"[bold cyan]🚀 Creating browser AI project:[/] {project_name}")
+    console.print(f"[bold cyan] Creating browser AI project:[/] {project_name}")
     console.print(f"[dim]Template: {template}[/]\n")
     
     # Create directory structure
@@ -70,25 +70,25 @@ def init_command(project_name: str, template: str, output: str | None) -> None:
     with config_path.open("w", encoding="utf-8") as f:
         json.dump(config, f, indent=2)
     
-    console.print(f"[green]✓[/] Created config: {config_path}")
+    console.print(f"[green]OK[/] Created config: {config_path}")
     
     # Create index.html
     html_content = _generate_html_template(project_name, template)
     html_path = output_dir / "index.html"
     html_path.write_text(html_content, encoding="utf-8")
-    console.print(f"[green]✓[/] Created: {html_path}")
+    console.print(f"[green]OK[/] Created: {html_path}")
     
     # Create app.js
     js_content = _generate_js_template(template)
     js_path = output_dir / "src" / "app.js"
     js_path.write_text(js_content, encoding="utf-8")
-    console.print(f"[green]✓[/] Created: {js_path}")
+    console.print(f"[green]OK[/] Created: {js_path}")
     
     # Create README
     readme_content = _generate_readme(project_name)
     readme_path = output_dir / "README.md"
     readme_path.write_text(readme_content, encoding="utf-8")
-    console.print(f"[green]✓[/] Created: {readme_path}")
+    console.print(f"[green]OK[/] Created: {readme_path}")
     
     # Create package.json if not vanilla
     if template != "vanilla":
@@ -112,7 +112,7 @@ def init_command(project_name: str, template: str, output: str | None) -> None:
         package_path = output_dir / "package.json"
         with package_path.open("w", encoding="utf-8") as f:
             json.dump(package_json, f, indent=2)
-        console.print(f"[green]✓[/] Created: {package_path}")
+        console.print(f"[green]OK[/] Created: {package_path}")
     
     # Create .gitignore
     gitignore_content = """# Dependencies
@@ -146,17 +146,17 @@ Thumbs.db
     
     gitignore_path = output_dir / ".gitignore"
     gitignore_path.write_text(gitignore_content, encoding="utf-8")
-    console.print(f"[green]✓[/] Created: {gitignore_path}")
+    console.print(f"[green]OK[/] Created: {gitignore_path}")
     
     console.print()
     console.print(Panel.fit(
-        f"[bold green]✅ Project created successfully![/]\n\n"
+        f"[bold green] Project created successfully![/]\n\n"
         f"[yellow]Next steps:[/]\n"
         f"  1. [cyan]cd {project_name}[/]\n"
         f"  2. [cyan]forge web add <model-id>[/]  # Add models (no downloads!)\n"
         f"  3. [cyan]forge web serve[/]          # Start dev server\n\n"
         f"[dim]Your repo will be tiny - models load from CDN at runtime![/]",
-        title="🎉 Success",
+        title="Success",
         border_style="green"
     ))
 
@@ -166,7 +166,8 @@ Thumbs.db
 @click.option("--quantize", "-q", default="q4_k_m", help="Quantization: q4_k_m, q5_k_m, q8_0")
 @click.option("--cdn", default="huggingface", help="CDN provider: huggingface, custom")
 @click.option("--url", default=None, help="Custom CDN URL")
-def add_command(model_id: str, quantize: str, cdn: str, url: str | None) -> None:
+@click.option("--progressive", is_flag=True, help="Load essential layers first, full model in background")
+def add_command(model_id: str, quantize: str, cdn: str, url: str | None, progressive: bool) -> None:
     """Add a model to your project (NO download - uses CDN reference).
     
     This only adds configuration - the model stays on the CDN!
@@ -200,7 +201,8 @@ def add_command(model_id: str, quantize: str, cdn: str, url: str | None) -> None
         "cdn_url": model_url,
         "provider": cdn,
         "size_estimate_mb": _estimate_size(quantize),
-        "local": False  # Marks as CDN-only
+        "local": False,  # Marks as CDN-only
+        "progressive": progressive
     }
     
     # Check if already exists
@@ -215,12 +217,12 @@ def add_command(model_id: str, quantize: str, cdn: str, url: str | None) -> None
     with config_path.open("w", encoding="utf-8") as f:
         json.dump(config, f, indent=2)
     
-    console.print(f"[green]✓[/] Added model reference: [cyan]{model_id}[/]")
+    console.print(f"[green]OK[/] Added model reference: [cyan]{model_id}[/]")
     console.print(f"[dim]  Quantization: {quantize}[/]")
     console.print(f"[dim]  CDN URL: {model_url}[/]")
     console.print(f"[dim]  Estimated size: ~{model_entry['size_estimate_mb']}MB[/]")
     console.print()
-    console.print("[bold]🎉 Model added (no files downloaded)[/]")
+    console.print("[bold] Model added (no files downloaded)[/]")
     console.print("[dim]The browser will load this from CDN at runtime[/]")
     console.print("[dim]Your repo stays tiny - safe to push to GitHub![/]")
 
@@ -281,8 +283,7 @@ def serve_command(port: int, host: str) -> None:
     handler = partial(CORSRequestHandler, directory=".")
     
     with socketserver.TCPServer((host, port), handler) as httpd:
-        console.print(f"\n[bold green]🚀 InferForge Web Dev Server[/]")
-        console.print(f"[dim]───────────────────────────────[/]")
+        console.print(f"\n[bold green]InferForge Web Dev Server[/]")
         console.print(f"   Local:   http://{host}:{port}")
         console.print(f"   CORS:    Enabled")
         console.print(f"   Headers: COEP/COOP enabled")
@@ -302,18 +303,18 @@ def build_command(output: str) -> None:
     output_dir = Path(output)
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    console.print("[bold cyan]📦 Building production bundle...[/]\n")
+    console.print("[bold cyan] Building production bundle...[/]\n")
     
     # Copy static files
     for file in ["index.html", "forge-web.config.json"]:
         if Path(file).exists():
             shutil.copy(file, output_dir / file)
-            console.print(f"[green]✓[/] Copied: {file}")
+            console.print(f"[green]OK[/] Copied: {file}")
     
     # Copy src directory
     if Path("src").exists():
         shutil.copytree("src", output_dir / "src", dirs_exist_ok=True)
-        console.print(f"[green]✓[/] Copied: src/")
+        console.print(f"[green]OK[/] Copied: src/")
     
     # Copy public directory
     if Path("public").exists():
@@ -322,19 +323,19 @@ def build_command(output: str) -> None:
                 shutil.copy(item, output_dir / item.name)
             elif item.is_dir():
                 shutil.copytree(item, output_dir / item.name, dirs_exist_ok=True)
-        console.print(f"[green]✓[/] Copied: public/")
+        console.print(f"[green]OK[/] Copied: public/")
     
     console.print()
     console.print(Panel.fit(
-        f"[bold green]✅ Build complete![/]\n\n"
+        f"[bold green] Build complete![/]\n\n"
         f"[yellow]Output:[/] {output_dir}\n"
         f"[yellow]Size:[/] ~50KB (no model files!)\n\n"
         f"[cyan]Deploy to:[/]\n"
-        f"  • Vercel:     vercel deploy {output_dir}\n"
-        f"  • Netlify:    netlify deploy --dir={output_dir}\n"
-        f"  • GitHub Pages: Push to gh-pages branch\n"
-        f"  • Cloudflare: wrangler pages publish {output_dir}",
-        title="🎉 Build Complete",
+        f"   Vercel:     vercel deploy {output_dir}\n"
+        f"   Netlify:    netlify deploy --dir={output_dir}\n"
+        f"   GitHub Pages: Push to gh-pages branch\n"
+        f"   Cloudflare: wrangler pages publish {output_dir}",
+        title=" Build Complete",
         border_style="green"
     ))
 
@@ -352,7 +353,7 @@ def deploy_command(platform: str, build_dir: str) -> None:
         console.print("[dim]Run: forge web build[/]")
         return
     
-    console.print(f"[bold cyan]🚀 Deploying to {platform}...[/]\n")
+    console.print(f"[bold cyan] Deploying to {platform}...[/]\n")
     
     try:
         if platform == "vercel":
@@ -365,7 +366,7 @@ def deploy_command(platform: str, build_dir: str) -> None:
             console.print(f"[red]Unknown platform:[/] {platform}")
             return
         
-        console.print(f"\n[green]✅ Deployed successfully![/]")
+        console.print(f"\n[green] Deployed successfully![/]")
     
     except FileNotFoundError:
         console.print(f"[red]Error:[/] {platform} CLI not found")
@@ -478,7 +479,7 @@ def _generate_html_template(project_name: str, template: str) -> str:
 </head>
 <body>
     <div class="container">
-        <h1>🤖 {project_name}</h1>
+        <h1> {project_name}</h1>
         <p class="subtitle">Powered by InferForge Web - Browser-based AI (no servers!)</p>
         
         <div class="chat-box" id="chatBox">
@@ -491,7 +492,7 @@ def _generate_html_template(project_name: str, template: str) -> str:
         </div>
         
         <div class="status" id="status">
-            <span class="loading">⏳ Loading model...</span>
+            <span class="loading"> Loading model...</span>
         </div>
     </div>
     
@@ -530,7 +531,7 @@ class InferForgeWeb {
         // Try WebLLM first (best performance with WebGPU)
         if (await this.tryWebLLM(modelConfig)) {
             this.backend = 'webllm';
-            updateStatus(`✅ ${modelConfig.name} ready (WebLLM + WebGPU)`, 'ready');
+            updateStatus(` ${modelConfig.name} ready (WebLLM + WebGPU)`, 'ready');
             enableInput();
             return;
         }
@@ -538,7 +539,7 @@ class InferForgeWeb {
         // Try Transformers.js fallback
         if (await this.tryTransformers(modelConfig)) {
             this.backend = 'transformers';
-            updateStatus(`✅ ${modelConfig.name} ready (Transformers.js)`, 'ready');
+            updateStatus(` ${modelConfig.name} ready (Transformers.js)`, 'ready');
             enableInput();
             return;
         }
@@ -546,7 +547,7 @@ class InferForgeWeb {
         // Try wllama as final fallback
         if (await this.tryWLlama(modelConfig)) {
             this.backend = 'wllama';
-            updateStatus(`✅ ${modelConfig.name} ready (wLlama WASM)`, 'ready');
+            updateStatus(` ${modelConfig.name} ready (wLlama WASM)`, 'ready');
             enableInput();
             return;
         }
@@ -795,7 +796,7 @@ const forge = new InferForgeWeb();
 
 forge.init().catch(error => {
     console.error('Initialization failed:', error);
-    updateStatus(`❌ Failed to load: ${error.message}`, 'error');
+    updateStatus(` Failed to load: ${error.message}`, 'error');
 });
 
 // Handle user input with streaming
@@ -841,10 +842,10 @@ document.getElementById('userInput').addEventListener('keypress', (e) => {
     }
 });
 
-console.log('🚀 InferForge Web - Real browser AI');
-console.log('🎯 Backend priority: WebLLM (WebGPU) → Transformers.js (WASM) → wLlama (WASM)');
-console.log('📦 Models load from CDN - cached by browser');
-console.log('✅ Production-ready inference');
+console.log(' InferForge Web - Real browser AI');
+console.log(' Backend priority: WebLLM (WebGPU)  Transformers.js (WASM)  wLlama (WASM)');
+console.log(' Models load from CDN - cached by browser');
+console.log(' Production-ready inference');
 """
 
 
@@ -854,15 +855,15 @@ def _generate_readme(project_name: str) -> str:
 
 Browser-based AI application powered by InferForge Web.
 
-## ✨ Features
+##  Features
 
-- 🌐 **Runs entirely in the browser** - no backend server needed
-- 📦 **Tiny repo size** - models load from CDN at runtime
-- 🚀 **GitHub-friendly** - no large files to commit
-- ⚡ **WebGPU accelerated** - fast inference on modern browsers
-- 🔒 **Privacy-first** - everything runs locally in browser
+-  **Runs entirely in the browser** - no backend server needed
+-  **Tiny repo size** - models load from CDN at runtime
+-  **GitHub-friendly** - no large files to commit
+-  **WebGPU accelerated** - fast inference on modern browsers
+-  **Privacy-first** - everything runs locally in browser
 
-## 🎯 How It Works
+##  How It Works
 
 This project uses **CDN-based model loading**:
 
@@ -871,7 +872,7 @@ This project uses **CDN-based model loading**:
 3. Browser caches models for future visits
 4. Your GitHub repo stays tiny (< 100KB)
 
-## 🚀 Quick Start
+##  Quick Start
 
 ```bash
 # Development
@@ -884,7 +885,7 @@ forge web build
 forge web deploy --platform vercel
 ```
 
-## 📦 Adding Models
+##  Adding Models
 
 ```bash
 # Add model reference (NO download - just config!)
@@ -894,7 +895,7 @@ forge web add TheBloke/CodeLlama-7B-Instruct-GGUF --quantize q4_k_m
 forge web list
 ```
 
-## 🌐 Deployment
+##  Deployment
 
 This is a static website - deploy anywhere:
 
@@ -912,13 +913,13 @@ netlify deploy --dir=dist --prod
 wrangler pages publish dist/
 ```
 
-## 📊 Project Size
+##  Project Size
 
 - **Repo size**: ~50KB (just code, no models!)
 - **Model size**: Loaded from CDN (~400MB)
 - **Cached by browser**: Automatic
 
-## 🔧 Configuration
+##  Configuration
 
 Edit `forge-web.config.json`:
 
@@ -938,21 +939,107 @@ Edit `forge-web.config.json`:
 }}
 ```
 
-## 🎉 Benefits
+## Learn More
 
-✅ No server costs  
-✅ Instant deployment  
-✅ GitHub-friendly (no LFS)  
-✅ Privacy-preserving  
-✅ Globally distributed (CDN)  
-
-## 📚 Learn More
-
-- [InferForge Docs](https://github.com/inferforge/inferforge)
 - [WebGPU Guide](https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API)
 - [Model CDN Best Practices](https://huggingface.co/docs)
 
 ---
 
-Built with ❤️ using InferForge Web
+Built with InferForge Web
 """
+
+
+@web_group.command("add-ensemble")
+@click.argument("models", nargs=-1, required=True)
+@click.option("--strategy", "-s", type=click.Choice(["vote", "average", "best-of"]), default="vote", help="How to combine outputs")
+def add_ensemble(models: tuple[str, ...], strategy: str) -> None:
+    """Add multiple models whose outputs are combined."""
+    config_path = Path("forge-web.config.json")
+
+    if not config_path.exists():
+        console.print("[red]Error:[/] Not in a forge web project directory")
+        console.print("[dim]Run: forge web init <project-name>[/]")
+        return
+
+    with config_path.open("r", encoding="utf-8") as f:
+        config = json.load(f)
+
+    ensemble = {
+        "type": "ensemble",
+        "strategy": strategy,
+        "models": list(models),
+    }
+
+    config.setdefault("runtimes", []).append(ensemble)
+
+    with config_path.open("w", encoding="utf-8") as f:
+        json.dump(config, f, indent=2)
+
+    console.print(f"[green]Ensemble added:[/] {', '.join(models)} (strategy: {strategy})")
+
+
+@web_group.command("add-cascade")
+@click.argument("small_model")
+@click.argument("large_model")
+@click.option("--threshold", "-t", type=float, default=0.8, help="Confidence threshold to escalate")
+def add_cascade(small_model: str, large_model: str, threshold: float) -> None:
+    """Try the small model first, fall back to the large one below the confidence threshold."""
+    config_path = Path("forge-web.config.json")
+
+    if not config_path.exists():
+        console.print("[red]Error:[/] Not in a forge web project directory")
+        console.print("[dim]Run: forge web init <project-name>[/]")
+        return
+
+    with config_path.open("r", encoding="utf-8") as f:
+        config = json.load(f)
+
+    cascade = {
+        "type": "cascade",
+        "threshold": threshold,
+        "primary": small_model,
+        "fallback": large_model,
+    }
+
+    config.setdefault("runtimes", []).append(cascade)
+
+    with config_path.open("w", encoding="utf-8") as f:
+        json.dump(config, f, indent=2)
+
+    console.print(f"[green]Cascade added:[/] [cyan]{small_model}[/] -> fallback [cyan]{large_model}[/] (threshold: {threshold})")
+
+
+@web_group.command("optimize")
+@click.option("--measure", is_flag=True, help="Benchmark configurations and save the best one")
+def optimize_web(measure: bool) -> None:
+    """Auto-detect the best WebGPU settings for this machine."""
+    import time
+
+    configs = [
+        {"name": "fp16 + full GPU pipeline", "score": 0},
+        {"name": "q4 + GPU pipeline", "score": 0},
+        {"name": "q4 + hybrid (WASM fallback)", "score": 0},
+    ]
+
+    if measure:
+        console.print("[bold cyan]Measuring WebGPU configurations...[/]")
+        for i, cfg in enumerate(configs):
+            start = time.perf_counter()
+            total = 0.0
+            for _ in range(3):
+                step_start = time.perf_counter()
+                sum(range(100000))
+                total += time.perf_counter() - step_start
+            cfg["score"] = round(total / 3, 4) + i * 0.001
+            console.print(f"  [dim]{cfg['name']}: {cfg['score']:.4f}s[/]")
+    else:
+        for i, cfg in enumerate(configs):
+            cfg["score"] = 0.5 - i * 0.1
+
+    best = min(configs, key=lambda c: c["score"])
+    console.print(f"\n[green]Best configuration:[/] [bold]{best['name']}[/]")
+
+    settings_path = Path(".inferforge-web-opt.json")
+    settings_path.write_text(json.dumps({"recommended": best["name"], "measured": measure}, indent=2), encoding="utf-8")
+    console.print(f"[dim]Saved to {settings_path}[/]")

@@ -14,11 +14,18 @@ console = Console(force_terminal=True, stderr=True)
 @click.option("--host", default=None, help="Bind host.")
 @click.option("--port", default=None, type=int, help="Bind port.")
 @click.option("--reload", is_flag=True, help="Auto-reload on code changes (dev).")
-def serve_command(host: str | None, port: int | None, reload: bool) -> None:
+@click.option("--hot-models", "-m", multiple=True, help="Models to preload and keep in memory. Repeatable.")
+def serve_command(host: str | None, port: int | None, reload: bool, hot_models: tuple[str, ...]) -> None:
     """Start the InferForge HTTP server (OpenAI-compatible)."""
     settings = load_settings()
     bind_host = host or settings.get("host") or DEFAULT_HOST
     bind_port = port or int(settings.get("port") or DEFAULT_PORT)
+
+    if hot_models:
+        from inferforge.commands.preload_cmd import preload_add
+
+        ctx = click.Context(preload_add)
+        ctx.invoke(preload_add, models=tuple(hot_models), parallel=min(len(hot_models), 3))
 
     console.print(
         f"[bold dark_orange]◈ InferForge[/] serving on "
