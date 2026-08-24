@@ -1,18 +1,21 @@
+/** @type {import('tailwindcss').Config} */
 export default {
-  content: ["./index.html", "./app/**/*.{ts,tsx}"],
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
     extend: {
       colors: {
-        background: "#030304",
-        accent: "#4f7cff",
-        accentHover: "#698fff",
-        orangeAccent: "#ff7a18"
+        primary: '#4f7cff',
+        accent: '#ff8a3d',
+        dark: '#030304',
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        mono: ["JetBrains Mono", "monospace"]
-      }
-    }
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['Fira Code', 'monospace'],
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 }
