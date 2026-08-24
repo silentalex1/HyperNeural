@@ -168,6 +168,68 @@ def pull_command(
     download_time = time.time() - download_start_time
     console.print(f"\n[green]✓[/] Registration completed in {download_time:.1f}s")
     console.print(f"[dim]0MB local storage used[/]")
+    
+    download_start_time = time.time()
+    
+    if variant:
+        if ":" not in model:
+            model = f"{model}:{variant}"
+        console.print(f"[dim]Using variant: {variant}[/]")
+    
+    if tag:
+        if ":" in model:
+            base_model = model.split(":")[0]
+            model = f"{base_model}:{tag}"
+        console.print(f"[dim]Using tag: {tag}[/]")
+    
+    source, model_identifier = _detect_source(model)
+    
+    console.print(f"[bold dark_orange]◈[/] Registering [cyan]{model_identifier}[/] from cloud storage…")
+    console.print(f"[dim]Storage: {storage_config['endpoint']}[/]")
+    console.print(f"[dim]No local storage used - models stream from cloud[/]")
+    
+    reg = Registry()
+    
+    try:
+        from inferforge.importers.ollama import import_from_ollama
+        count, names = import_from_ollama(registry=reg, host=host, progress=None, link_blobs=True)
+        
+        matched = None
+        for name in names:
+            if name == model_identifier:
+                matched = name
+                break
+            if model_identifier.replace("/", ":") in name.replace("/", ":"):
+                matched = name
+                break
+            if model_identifier.split(":")[0] in name:
+                matched = name
+                break
+        
+        if matched:
+            console.print(f"[green]✓[/] [bold]{matched}[/] registered in Forge")
+            
+            record = reg.get(matched)
+            if record:
+                console.print(f"  name:     {record.name}")
+                console.print(f"  family:   {record.family}")
+                console.print(f"  size:     {record.parameter_size}")
+                console.print(f"  quant:    {record.quantization}")
+                console.print(f"  backend:  {record.backend}")
+                console.print(f"  storage:  cloud (InferForge 20TB)")
+                console.print(f"\n[green]✓[/] Ready to use: [bold]forge run {matched}[/]")
+                console.print(f"[dim]Model will stream from cloud on demand[/]")
+        else:
+            console.print(f"[yellow]Model not found:[/] {model_identifier}")
+            console.print(f"[dim]Available models: {', '.join(names[:5])}...[/]")
+            return
+    except Exception as e:
+        console.print(f"[bold red]Registration failed:[/] {e}")
+        raise SystemExit(1) from e
+    
+    download_time = time.time() - download_start_time
+    console.print(f"\n[green]✓[/] Registration completed in {download_time:.1f}s")
+    console.print(f"[dim]0MB local storage used[/]")
 
 
 def _pull_from_ollama(model_name: str, force: bool, into_forge: bool, host: str | None, download_context: dict) -> Path | None:
