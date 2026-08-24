@@ -438,7 +438,7 @@ export default function Docs() {
           )}
 
           <div className="space-y-14 pb-20">
-            {filtered.map((section, sectionNum) => (
+            {filtered.map((section) => (
               <section key={section.id} id={section.id} className="scroll-mt-24">
                 <div className="flex items-center gap-4 mb-5 pb-3 border-b border-white/[0.06]">
                   <span className="font-mono text-xs text-accent bg-accent/[0.08] border border-accent/15 rounded-lg px-2.5 py-1.5 shrink-0">
