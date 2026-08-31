@@ -7,7 +7,6 @@ type Mode = 'register' | 'login'
 
 export default function Auth({ mode }: { mode: Mode }) {
   const isRegister = mode === 'register'
-  const navigate = useNavigate()
   const { register, login, requestCode } = useAuth()
 
   const [username, setUsername] = useState('')
@@ -15,7 +14,6 @@ export default function Auth({ mode }: { mode: Mode }) {
   const [password, setPassword] = useState('')
   const [code, setCode] = useState('')
   const [sending, setSending] = useState(false)
-  const [sentCode, setSentCode] = useState<string | null>(null)
   const [cooldown, setCooldown] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
@@ -30,7 +28,6 @@ export default function Auth({ mode }: { mode: Mode }) {
     }
     setSending(true)
     const c = requestCode(email)
-    setSentCode(c)
     try {
       await fetch('/api/send-code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code: c }) })
       setSuccess(`Verification code sent to ${email}. Check your inbox.`)
