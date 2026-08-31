@@ -8,57 +8,79 @@
   }
 
   body {
-    @apply bg-dark text-white antialiased;
+    @apply bg-white text-gray-900 antialiased dark:bg-ink dark:text-paper;
   }
 
   ::selection {
-    @apply bg-primary/40 text-white;
+    @apply bg-primary/40 text-ink;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply px-6 py-3 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl transition-all duration-200 hover:scale-[1.03] hover:shadow-lg hover:shadow-primary/40;
+    @apply px-6 py-3 bg-primary hover:bg-primary/90 text-ink font-semibold rounded-xl transition duration-200 hover:shadow-lg hover:shadow-primary/15;
   }
 
   .btn-secondary {
-    @apply px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl transition-all duration-200 border border-white/10 hover:border-white/25;
+    @apply px-6 py-3 bg-white/[0.05] hover:bg-white/[0.08] text-white font-semibold rounded-xl transition duration-200 border border-white/[0.07] hover:border-white/[0.12] dark:text-paper;
   }
 
   .card {
-    @apply bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:bg-white/[0.07] hover:border-white/[0.15] transition-all duration-200;
+    @apply bg-white/[0.035] backdrop-blur border border-white/[0.055] rounded-2xl p-6 hover:bg-white/[0.055] hover:border-white/[0.085] transition duration-200 shadow-card;
   }
 
   .glow {
-    @apply shadow-2xl shadow-primary/20;
+    @apply shadow-glow;
+  }
+
+  .section {
+    @apply py-24 md:py-28 px-6 md:px-10;
+  }
+
+  .container-site {
+    @apply max-w-site mx-auto;
   }
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(79, 124, 255, 0.4);
-  border-radius: 5px;
+  background: rgba(0, 245, 212, 0.3);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(79, 124, 255, 0.65);
+  background: rgba(123, 97, 255, 0.45);
 }
 
 .gradient-text {
-  @apply bg-gradient-to-r from-primary via-purple-400 to-accent bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
 }
 
 .animated-bg {
   background:
-    radial-gradient(ellipse 60% 50% at 20% 30%, rgba(79, 124, 255, 0.09) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 45% at 85% 75%, rgba(255, 138, 61, 0.07) 0%, transparent 60%);
+    radial-gradient(ellipse 58% 48% at 18% 18%, rgba(0, 245, 212, 0.1) 0%, transparent 62%),
+    radial-gradient(ellipse 48% 42% at 88% 78%, rgba(123, 97, 255, 0.11) 0%, transparent 62%),
+    #0A0A0B;
+}
+
+html:not(.dark) .animated-bg {
+  background:
+    radial-gradient(ellipse 58% 48% at 18% 18%, rgba(0, 245, 212, 0.13) 0%, transparent 62%),
+    radial-gradient(ellipse 48% 42% at 88% 78%, rgba(123, 97, 255, 0.1) 0%, transparent 62%),
+    #f6f7fb;
+}
+
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
 }
 
 @media (prefers-reduced-motion: reduce) {

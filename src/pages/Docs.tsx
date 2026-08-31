@@ -23,7 +23,7 @@ export default function Docs() {
             </p>
           </div>
 
-          <div className="card border-primary/25">
+          <div className="card border-white/[0.06]">
             <h3 className="text-xl font-semibold mb-4">Installation</h3>
             <div className="space-y-4">
               {[
@@ -77,8 +77,14 @@ export default function Docs() {
             { cmd: 'forge create', desc: 'Create a new model from scratch' },
             { cmd: 'forge embedd', desc: 'Embed model weights for portable use' },
             { cmd: 'forge nexara', desc: 'Nexara AI-native programming language tooling' },
+            { cmd: 'forge merge a b --name fused --verify', desc: 'Merge two models with TIES/SLERP and verify tensors' },
+            { cmd: 'forge train --dry-run --data tiny.json', desc: 'Validate a training plan without contacting Ollama' },
+            { cmd: 'forge serve', desc: 'API on :11435 plus web UI at /ui' },
+            { cmd: 'forge benchmark run <model>', desc: 'Measure tokens/sec, latency, and memory' },
+            { cmd: 'forge doctor', desc: 'Diagnose backends, GPU, and missing deps' },
+            { cmd: 'forge feedback', desc: 'Save anonymous local diagnostics' },
           ].map((item, idx) => (
-            <div key={idx} className="card hover:border-primary/30 transition-colors">
+            <div key={idx} className="card hover:border-white/[0.10] transition-colors">
               <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
                 <code className="text-primary font-mono font-semibold whitespace-nowrap">{item.cmd}</code>
                 <p className="text-gray-400 text-sm flex-1">{item.desc}</p>
@@ -100,7 +106,7 @@ export default function Docs() {
             Tailor InferForge to each workflow: switch hardware profiles, extend the CLI, cache aggressively, and optimize quantization.
           </p>
 
-          <div className="card border border-primary/25">
+          <div className="card border border-white/[0.06]">
             <h3 className="text-lg font-semibold mb-3">Configuration Profiles</h3>
             <div className="card bg-black/60 font-mono text-sm space-y-2 border border-white/10">
               {[
@@ -116,7 +122,7 @@ export default function Docs() {
             </div>
           </div>
 
-          <div className="card border border-primary/25">
+          <div className="card border border-white/[0.06]">
             <h3 className="text-lg font-semibold mb-3">Custom Plugins</h3>
             <p className="text-gray-400 text-sm mb-3">
               Drop a Python file into ~/.inferforge/plugins to register new commands.
@@ -131,7 +137,7 @@ class MyPlugin(ForgePlugin):
             </div>
           </div>
 
-          <div className="card border border-primary/25">
+          <div className="card border border-white/[0.06]">
             <h3 className="text-lg font-semibold mb-3">Caching & Preloading</h3>
             <div className="card bg-black/60 font-mono text-sm space-y-2 border border-white/10">
               {[
@@ -148,7 +154,7 @@ class MyPlugin(ForgePlugin):
             </div>
           </div>
 
-          <div className="card border border-primary/25">
+          <div className="card border border-white/[0.06]">
             <h3 className="text-lg font-semibold mb-3">Quantization Optimizer</h3>
             <div className="card bg-black/60 font-mono text-sm space-y-2 border border-white/10">
               {[
@@ -207,7 +213,7 @@ class MyPlugin(ForgePlugin):
             Train custom models using Nexara, InferForge's AI-native training DSL, with curriculums, synthetic data, and live monitoring.
           </p>
 
-          <div className="card border-primary/25">
+          <div className="card border-white/[0.06]">
             <h3 className="text-xl font-semibold mb-3">Nexara Training Example</h3>
             <div className="bg-black/60 p-4 rounded-lg text-sm font-mono overflow-x-auto border border-white/10">
               <pre>{`model MyCoder {
@@ -290,7 +296,7 @@ class MyPlugin(ForgePlugin):
               cmds: ['forge docker build my-model --tag my-org/my-model:v1', 'forge kubernetes deploy my-model --replicas 3', 'forge doctor --fix-gpu'],
             },
           ].map(group => (
-            <div key={group.title} className="card border-primary/25">
+            <div key={group.title} className="card border-white/[0.06]">
               <h3 className="text-lg font-semibold mb-3">{group.title}</h3>
               <div className="space-y-1.5 font-mono text-sm">
                 {group.cmds.map(cmd => (
@@ -317,7 +323,7 @@ class MyPlugin(ForgePlugin):
             Deploy AI to any website without servers. Models load from a CDN at runtime and inference runs client-side with WebGPU.
           </p>
 
-          <div className="card border-primary/25 bg-primary/5">
+          <div className="card border-white/[0.06] bg-primary/5">
             <h3 className="text-xl font-semibold mb-4">How it works</h3>
             <ol className="space-y-3 text-gray-400">
               {[
@@ -384,11 +390,16 @@ class MyPlugin(ForgePlugin):
             InferForge ships an OpenAI-compatible REST API served locally by `forge serve`.
           </p>
 
-          <div className="card border-primary/25">
-            <h3 className="text-xl font-semibold mb-3">Base URL</h3>
-            <code className="block bg-black/60 px-4 py-3 rounded-lg font-mono text-sm border border-white/10">
-              http://localhost:11435/v1
+          <div className="card border-white/[0.06]">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xl font-semibold">Base URL</h3>
+              <span className="text-[11px] font-mono px-2 py-1 rounded bg-primary/15 text-primary border border-primary/20">production</span>
+            </div>
+            <code className="block bg-black/60 px-4 py-3 rounded-lg font-mono text-sm border border-white/10 flex items-center justify-between gap-3">
+              <span>https://hyperneural.cfd/v1</span>
+              <span className="text-[11px] text-white/30 hidden sm:inline">OpenAI-compatible</span>
             </code>
+            <p className="text-xs text-white/40 mt-2">Local serve still available at <span className="font-mono text-white/60">http://localhost:11435/v1</span> when you run <span className="font-mono text-primary">forge serve</span></p>
           </div>
 
           <div>
@@ -413,7 +424,7 @@ class MyPlugin(ForgePlugin):
             </div>
           </div>
 
-          <div className="card border-primary/25">
+          <div className="card border-white/[0.06]">
             <h3 className="text-xl font-semibold mb-3">Example Request</h3>
             <div className="bg-black/60 p-4 rounded-lg text-sm font-mono overflow-x-auto border border-white/10">
               <pre>{`{
@@ -476,66 +487,60 @@ class MyPlugin(ForgePlugin):
   )
 
   return (
-    <div className="py-12 px-6 max-w-7xl mx-auto">
-      <div className="flex flex-col lg:flex-row gap-8">
-        <aside className="lg:w-64 flex-shrink-0">
-          <div className="lg:sticky lg:top-24 space-y-6">
-            <nav className="space-y-1">
-              {sections.map(section => (
-                <button
-                  key={section.id}
-                  onClick={() => setActiveSection(section.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-left transition-colors ${
-                    activeSection === section.id
-                      ? 'bg-primary text-white shadow-md shadow-primary/25'
-                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  {section.icon}
-                  <span className="text-sm font-medium">{section.title}</span>
-                </button>
-              ))}
-            </nav>
-
-            <div className="card hidden lg:block">
-              <h3 className="font-semibold mb-2">Need help?</h3>
-              <p className="text-sm text-gray-400 mb-4">Join the community Discord for support.</p>
-              <a
-                href="https://discord.gg/inferforge"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary text-sm w-full text-center block"
-              >
-                Join Discord
-              </a>
-            </div>
-          </div>
-        </aside>
-
-        <main className="flex-1 min-w-0">
-          <div className="mb-8">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search documentation..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-gray-500"
-              />
-            </div>
-          </div>
-
-          {filteredSections.length === 0 ? (
-            <div className="card text-center py-16 text-gray-500">No sections match your search.</div>
-          ) : (
-            filteredSections.map(section => (
-              <div key={section.id} className={section.id === activeSection ? '' : 'hidden'}>
-                {section.content}
+    <div className="min-h-[calc(100vh-64px)] bg-[#0A0A0B]">
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-8 lg:py-10">
+        <div className="flex flex-col lg:flex-row gap-8">
+          <aside className="lg:w-[240px] flex-shrink-0">
+            <div className="lg:sticky lg:top-[84px] space-y-5">
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                <input
+                  type="text"
+                  placeholder="Search docs..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2.5 bg-white/[0.04] border border-white/[0.07] rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/15 focus:bg-white/[0.06] transition"
+                />
               </div>
-            ))
-          )}
-        </main>
+              <nav className="space-y-1">
+                {sections.map(section => (
+                  <button
+                    key={section.id}
+                    onClick={() => setActiveSection(section.id)}
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left transition ${
+                      activeSection === section.id
+                        ? 'bg-white text-black font-semibold shadow-sm'
+                        : 'text-white/50 hover:text-white hover:bg-white/[0.06]'
+                    }`}
+                  >
+                    <span className={activeSection === section.id ? 'text-black/60' : 'text-white/30'}>{section.icon}</span>
+                    <span className="text-[13px]">{section.title}</span>
+                  </button>
+                ))}
+              </nav>
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 hidden lg:block">
+                <h3 className="text-sm font-semibold text-white mb-1.5">Need help?</h3>
+                <p className="text-xs leading-5 text-white/45 mb-4">Join Discord. Response within 24h for beta users.</p>
+                <a href="https://discord.gg/Nc9fqvRM68" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center w-full px-4 py-2.5 rounded-xl bg-[#FF7A00] text-sm font-bold text-white hover:bg-[#ff8c1a] transition">
+                  Join Discord
+                </a>
+              </div>
+            </div>
+          </aside>
+          <main className="flex-1 min-w-0">
+            {filteredSections.length === 0 ? (
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] text-center py-16 text-white/40 text-sm">No sections match your search.</div>
+            ) : (
+              filteredSections.map(section => (
+                <div key={section.id} className={section.id === activeSection ? '' : 'hidden'}>
+                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 lg:p-8">
+                    {section.content}
+                  </div>
+                </div>
+              ))
+            )}
+          </main>
+        </div>
       </div>
     </div>
   )
