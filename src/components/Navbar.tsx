@@ -10,6 +10,8 @@ const links = [
   { path: '/pricing', label: 'Pricing' },
   { path: '/#comparison', label: 'Compare', hash: 'comparison' },
   { path: '/docs', label: 'Documentation' },
+  { path: '/models', label: 'Models' },
+  { path: '/our-models', label: 'Our Models' },
 ]
 
 export default function Navbar() {
@@ -17,6 +19,7 @@ export default function Navbar() {
   const { theme, toggle } = useTheme()
   const { user, logout } = useAuth()
   const [open, setOpen] = useState(false)
+  const [userDropdown, setUserDropdown] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [confirmHref, setConfirmHref] = useState<string | null>(null)
 
@@ -38,7 +41,7 @@ export default function Navbar() {
     setConfirmHref(href)
   }
 
-  const chatHref = 'https://hyperneural.cfd/Inferforge#chat'
+  const chatHref = '/chatui'
   const githubHref = 'https://github.com/silentalex1/HyperNeural'
 
   return (
@@ -50,17 +53,40 @@ export default function Navbar() {
             : 'bg-[#0A0A0B]/60 border-white/[0.05]'
         }`}
       >
-        <div className="max-w-site mx-auto px-6 lg:px-8">
-          <div className="flex items-center justify-between h-[64px]">
-            <Link to="/" className="flex items-center gap-3 shrink-0">
-              <span className="w-7 h-7 rounded-lg bg-white flex items-center justify-center">
-                <span className="text-[11px] font-extrabold tracking-tighter text-black">IF</span>
-              </span>
-              <span className="text-[15px] font-bold tracking-tight text-white">InferForge</span>
-              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide bg-amber-400/15 text-amber-300 border border-amber-400/20">
-                v0.2.0-beta.1
-              </span>
-            </Link>
+          <div className="max-w-site mx-auto px-6 lg:px-8">
+            <div className="flex items-center justify-between h-[64px]">
+              <div className="flex items-center gap-4 min-w-0">
+                {user && (
+                  <div className="relative">
+                    <button onClick={() => setUserDropdown(o => !o)} className="inline-flex items-center gap-2 pl-1 pr-3 py-1 rounded-full bg-white text-[#0A0A0B] text-[13px] font-semibold shadow-lg hover:bg-white/90 transition">
+                      <span className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[11px] font-bold">{user.username[0].toUpperCase()}</span>
+                      Welcome {user.username}
+                      <svg className={`w-3 h-3 text-black/40 transition ${userDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                    {userDropdown && (
+                      <div className="absolute left-0 top-full mt-2 w-48 bg-[#111113] border border-white/[0.08] rounded-2xl shadow-2xl py-2 z-50 overflow-hidden">
+                        <div className="px-4 py-2 border-b border-white/[0.06]">
+                          <p className="text-xs text-white/40">Signed in as</p>
+                          <p className="text-sm font-semibold text-white truncate">{user.username}</p>
+                        </div>
+                        <Link to={`/dashboard/${user.username}`} onClick={() => setUserDropdown(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-white hover:bg-white/[0.06] transition">
+                          <span className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">◈</span>
+                          dashboard
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <Link to="/" className="flex items-center gap-3 shrink-0">
+                  <span className="w-7 h-7 rounded-lg bg-white flex items-center justify-center">
+                    <span className="text-[11px] font-extrabold tracking-tighter text-black">IF</span>
+                  </span>
+                  <span className="text-[15px] font-bold tracking-tight text-white">InferForge</span>
+                  <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide bg-amber-400/15 text-amber-300 border border-amber-400/20">
+                    v0.2.0-beta.1
+                  </span>
+                </Link>
+              </div>
 
             <div className="hidden lg:flex items-center gap-1">
               {links.map(link => (
@@ -93,14 +119,13 @@ export default function Navbar() {
               </button>
               {user ? (
                 <>
-                  <a
-                    href={chatHref}
-                    onClick={e => handleExternal(e, chatHref)}
+                  <Link
+                    to={chatHref}
                     className="ml-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF7A00] text-white text-[13px] font-semibold hover:bg-[#ff8c1a] transition shadow-[0_4px_16px_rgba(255,122,0,0.25)]"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
                     Chat with InferForge
-                  </a>
+                  </Link>
                   <button
                     onClick={() => { logout(); window.location.reload() }}
                     className="ml-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/[0.06] border border-white/[0.08] text-white/70 text-[13px] font-medium hover:bg-white/[0.09] hover:text-white transition"
@@ -144,13 +169,13 @@ export default function Navbar() {
             ))}
             {user ? (
               <>
-                <a
-                  href={chatHref}
-                  onClick={e => { handleExternal(e, chatHref); setOpen(false) }}
+                <Link
+                  to={chatHref}
+                  onClick={() => setOpen(false)}
                   className="block mt-3 px-4 py-3 rounded-xl bg-[#FF7A00] text-center text-sm font-semibold text-white"
                 >
                   Chat with InferForge
-                </a>
+                </Link>
                 <button
                   onClick={() => { logout(); setOpen(false); window.location.reload() }}
                   className="block mt-2 w-full px-4 py-3 rounded-xl bg-white/[0.06] border border-white/[0.08] text-center text-sm font-medium text-white/70"

@@ -8,10 +8,13 @@ import Docs from './pages/Docs'
 import Chat from './pages/Chat'
 import Pricing from './pages/Pricing'
 import Auth from './pages/Auth'
+import Account from './pages/Account'
+import UserDashboard from './pages/UserDashboard'
+import OurModels from './pages/OurModels'
 
 export default function App() {
   const location = useLocation()
-  const isChat = location.pathname === '/chat'
+  const isChat = location.pathname === '/chat' || location.pathname === '/chatui' || location.pathname === '/v1/chatui'
 
   if (isChat) {
     return <Chat />
@@ -30,6 +33,12 @@ export default function App() {
           <Route path="/register" element={<Auth mode="register" />} />
           <Route path="/registar" element={<Navigate to="/register" replace />} />
           <Route path="/login" element={<Auth mode="login" />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/dashboard/:username" element={<UserDashboard />} />
+          <Route path="/our-models" element={<OurModels />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/chatui" element={<Chat />} />
+          <Route path="/v1/chatui" element={<Chat />} />
         </Routes>
       </main>
       <Footer />

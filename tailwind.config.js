@@ -20,7 +20,7 @@ export default {
         mono: ['IBM Plex Mono', 'ui-monospace', 'monospace'],
       },
       maxWidth: {
-        site: '1200px',
+        site: '1360px',
       },
       boxShadow: {
         glow: '0 0 80px rgba(0, 245, 212, 0.12)',

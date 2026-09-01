@@ -10,6 +10,8 @@ from rich.text import Text
 from inferforge import __app_name__, __version__
 from inferforge.commands.chat_cmd import chat_command
 from inferforge.commands.create_cmd import create_command
+from inferforge.commands.uninstall_cmd import uninstall_command
+from inferforge.commands.update_cmd import update_command
 from inferforge.commands.embedd_cmd import embedd_command
 from inferforge.commands.help_ai_cmd import help_command
 from inferforge.commands.import_cmd import import_command
@@ -110,6 +112,8 @@ forge.add_command(explore_command)
 forge.add_command(generate_data_command)
 forge.add_command(optimize_command)
 forge.add_command(doctor_command)
+forge.add_command(uninstall_command)
+forge.add_command(update_command)
 
 
 def _show_all_commands(console: Console) -> None:

@@ -23,17 +23,32 @@ export default function Account() {
       setStep('need-account')
       return
     }
-    const users = (() => {
+    let cancelled = false
+    const local = (() => {
       try { return JSON.parse(localStorage.getItem('inferforge-users') || '[]') } catch { return [] }
     })()
-    const found = users.find((u: any) => u.username.toLowerCase() === verifyUsername.toLowerCase())
-    if (found) {
-      setEmail(found.email)
+    const foundLocal = local.find((u: any) => u.username.toLowerCase() === verifyUsername.toLowerCase())
+    if (foundLocal) {
+      setEmail(foundLocal.email)
       setStep('code')
-    } else {
-      setStep('need-account')
-      setMessage(`No account found for "${verifyUsername}". Create an account first, then run forge connect again.`)
+      return
     }
+    fetch(`https://inferforge-email.asdwwas233.workers.dev/api/auth/user/${encodeURIComponent(verifyUsername)}`)
+      .then(r => (r.ok ? r.json() : null))
+      .then((data: any) => {
+        if (cancelled) return
+        if (data && data.username) {
+          setEmail(data.email)
+          setStep('code')
+        } else {
+          setStep('need-account')
+          setMessage(`No account found for "${verifyUsername}". Create an account first, then run forge connect again.`)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) { setStep('need-account'); setMessage(`No account found for "${verifyUsername}".`) }
+      })
+    return () => { cancelled = true }
   }, [verifyUsername])
 
   useEffect(() => {
@@ -42,7 +57,7 @@ export default function Account() {
       setCountdown(v => {
         if (v <= 1) {
           clearInterval(iv)
-          navigate('/')
+          navigate('/chatui')
           return 0
         }
         return v - 1
@@ -147,7 +162,7 @@ export default function Account() {
               <div>
                 <p className="text-lg font-bold text-emerald-400">Welcome {username}!</p>
                 <p className="text-sm text-white/50 mt-1">
-                  Your account is now connected.
+                  Account connected. Directing you back to homepage.. {countdown}s.
                 </p>
               </div>
               <div className="h-1 rounded-full bg-white/[0.06] overflow-hidden">

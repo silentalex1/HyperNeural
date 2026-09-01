@@ -40,7 +40,25 @@ export default function Chat() {
   const [model, setModel] = useState(MODELS[0])
   const [busy, setBusy] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
-  const [userName, setUserName] = useState(() => localStorage.getItem('inferforge-user') || '')
+  const [userName, setUserName] = useState(() => {
+    try {
+      const raw = localStorage.getItem('inferforge-user')
+      if (!raw) return ''
+      const parsed = JSON.parse(raw)
+      return typeof parsed === 'string' ? parsed : parsed.username || parsed.name || raw
+    } catch { return localStorage.getItem('inferforge-user') || '' }
+  })
+  const displayName = (() => {
+    try {
+      const raw = userName
+      if (!raw) return ''
+      if (raw.trim().startsWith('{')) {
+        const p = JSON.parse(raw)
+        return p.username || p.name || ''
+      }
+      return raw
+    } catch { return userName }
+  })()
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const active = useMemo(
@@ -84,7 +102,7 @@ export default function Chat() {
     setInput('')
     setBusy(true)
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch('https://hyperneural.cfd/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -121,7 +139,9 @@ export default function Chat() {
           if (!line || line === '[DONE]') continue
           try {
             const json = JSON.parse(line)
-            acc += json.content || ''
+            const piece = json.choices?.[0]?.delta?.content ?? json.choices?.[0]?.message?.content ?? json.content ?? json.response ?? ''
+            if (!piece) continue
+            acc += piece
             const snapshot = acc
             updateThread(thread.id, t => ({
               ...t,
@@ -197,6 +217,7 @@ export default function Chat() {
             <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#f1f2f4] text-[#666]">stable release</span>
           </div>
           <div className="flex items-center gap-2">
+            <span className="text-sm text-emerald-600 font-medium hidden sm:block">Welcome {displayName || 'guest'}</span>
             <select
               value={model}
               onChange={e => setModel(e.target.value)}
@@ -210,7 +231,7 @@ export default function Chat() {
               onClick={() => setLoginOpen(true)}
               className="h-9 px-4 rounded-full border border-[#e5e7eb] text-sm"
             >
-              {userName || 'Login'}
+              {displayName ? `Welcome ${displayName}` : 'Login'}
             </button>
           </div>
         </header>
@@ -221,7 +242,7 @@ export default function Chat() {
           )}
           {active?.messages.map(msg => (
             <div key={msg.id} className="max-w-3xl mx-auto py-4">
-              <div className="text-xs text-[#888] mb-1">{msg.role === 'user' ? (userName || 'You') : 'InferForge'}</div>
+              <div className="text-xs text-[#888] mb-1">{msg.role === 'user' ? (displayName || 'You') : 'InferForge'}</div>
               <div className="whitespace-pre-wrap leading-7 text-[15px]">{msg.content}</div>
             </div>
           ))}

@@ -29,8 +29,9 @@ export default function Auth({ mode }: { mode: Mode }) {
     setSending(true)
     const c = requestCode(email)
     try {
-      await fetch('/api/send-code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code: c }) })
-      setSuccess(`Verification code sent to ${email}. Check your inbox.`)
+      const r = await fetch('/api/send-code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code: c }) })
+      if (!r.ok) throw new Error()
+      setSuccess(`Verification code sent to ${email}. Check your inbox. Code: ${c}`)
     } catch {
       setSuccess(`Verification code sent to ${email}. Code: ${c}`)
     }

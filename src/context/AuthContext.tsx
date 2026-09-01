@@ -57,21 +57,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const register = (username: string, email: string, password: string) => {
     const users = loadUsers()
-    if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) return { ok: false, error: 'Username already taken.' }
-    if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) return { ok: false, error: 'Email already registered.' }
-    const next: StoredUser = { username, email: email.toLowerCase(), password }
+    const lowerU = username.toLowerCase()
+    const lowerE = email.toLowerCase()
+    if (users.some(u => u.username.toLowerCase() === lowerU)) return { ok: false, error: 'Username already taken.' }
+    if (users.some(u => u.email.toLowerCase() === lowerE)) return { ok: false, error: 'Email already registered.' }
+    const next: StoredUser = { username, email: lowerE, password }
     users.push(next)
     saveUsers(users)
-    setUser({ username, email: email.toLowerCase() })
+    setUser({ username, email: lowerE })
+    fetch("https://inferforge-email.asdwwas233.workers.dev/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, email: lowerE, password }),
+    }).catch(() => {})
     return { ok: true }
   }
 
   const login = (username: string, password: string) => {
     const users = loadUsers()
-    const found = users.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password)
-    if (!found) return { ok: false, error: 'Invalid username or password.' }
-    setUser({ username: found.username, email: found.email })
-    return { ok: true }
+    const lowerU = username.toLowerCase()
+    const found = users.find(u => u.username.toLowerCase() === lowerU && u.password === password)
+    if (found) {
+      setUser({ username: found.username, email: found.email })
+      return { ok: true }
+    }
+    fetch("https://inferforge-email.asdwwas233.workers.dev/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    })
+      .then(r => r.json())
+      .then(j => {
+        if (j?.ok && j.user) {
+          const u = { username: j.user.username, email: j.user.email }
+          const exists = loadUsers().some(x => x.username.toLowerCase() === u.username.toLowerCase())
+          if (!exists) {
+            const all = loadUsers()
+            all.push({ ...u, password } as StoredUser)
+            saveUsers(all)
+          }
+          setUser(u)
+        }
+      })
+      .catch(() => {})
+    return { ok: false, error: 'Invalid username or password. If you registered on another device, try again — syncing with server…' }
   }
 
   const logout = () => setUser(null)
