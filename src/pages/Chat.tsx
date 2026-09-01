@@ -217,7 +217,7 @@ export default function Chat() {
             <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#f1f2f4] text-[#666]">stable release</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-emerald-600 font-medium hidden sm:block">Welcome {displayName || 'guest'}</span>
+            <span className="text-sm text-emerald-600 font-medium">Welcome {displayName || 'guest'}</span>
             <select
               value={model}
               onChange={e => setModel(e.target.value)}
@@ -227,12 +227,6 @@ export default function Chat() {
                 <option key={m} value={m}>{m}</option>
               ))}
             </select>
-            <button
-              onClick={() => setLoginOpen(true)}
-              className="h-9 px-4 rounded-full border border-[#e5e7eb] text-sm"
-            >
-              {displayName ? `Welcome ${displayName}` : 'Login'}
-            </button>
           </div>
         </header>
 
@@ -272,24 +266,22 @@ export default function Chat() {
         </div>
       </div>
 
-      <a
-        href="https://www.netlify.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-4 right-4 z-20 inline-flex items-center gap-2 rounded-full bg-[#0b1b2b] text-white text-xs px-3 py-2 shadow-lg"
-      >
-        <span className="w-3 h-3 rounded-sm bg-[#32e6e2]" />
-        Powered by Netlify
-      </a>
-
       {loginOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-30">
           <form
             className="bg-white rounded-2xl p-6 w-[320px] shadow-xl"
             onSubmit={e => {
               e.preventDefault()
-              localStorage.setItem('inferforge-user', userName)
+              try {
+                const trimmed = userName.trim()
+                const obj = trimmed.startsWith('{') ? JSON.parse(trimmed) : { username: trimmed }
+                const name = obj.username || trimmed
+                localStorage.setItem('inferforge-user', JSON.stringify({ username: name }))
+              } catch {
+                localStorage.setItem('inferforge-user', JSON.stringify({ username: userName }))
+              }
               setLoginOpen(false)
+              window.location.reload()
             }}
           >
             <h2 className="font-semibold mb-3">Login</h2>

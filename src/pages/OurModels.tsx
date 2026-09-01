@@ -38,7 +38,11 @@ export default function OurModels() {
               </div>
               <p className="text-xs text-white/40 mt-1">{m.family}</p>
               <p className="text-sm text-white/60 mt-2">{m.desc}</p>
-              <a href={`https://hyperneural.cfd/${m.name}/#@${m.name}`} target="_blank" rel="noopener" className="text-xs text-emerald-400 hover:underline mt-3 inline-block">SDK: hyperneural.cfd/{m.name}/#@&lt;username&gt;</a>
+              {m.name === 'inferforge-beta' ? (
+                <a href="https://api.inferforge.org/Inferforge:latest#release" target="_blank" rel="noopener" className="text-xs text-emerald-400 hover:underline mt-3 inline-block">SDK: api.inferforge.org/Inferforge:latest#release</a>
+              ) : (
+                <a href={`https://hyperneural.cfd/${m.name}/#@<username>`} target="_blank" rel="noopener" className="text-xs text-emerald-400 hover:underline mt-3 inline-block">SDK: hyperneural.cfd/{m.name}/#@&lt;username&gt;</a>
+              )}
             </div>
           ))}
         </div>

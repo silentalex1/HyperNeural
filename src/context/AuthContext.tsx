@@ -7,7 +7,7 @@ type StoredUser = User & { password: string }
 type AuthValue = {
   user: User | null
   register: (username: string, email: string, password: string) => { ok: boolean; error?: string }
-  login: (username: string, password: string) => { ok: boolean; error?: string }
+  login: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>
   logout: () => void
   requestCode: (email: string) => string
 }
@@ -15,7 +15,7 @@ type AuthValue = {
 const AuthContext = createContext<AuthValue>({
   user: null,
   register: () => ({ ok: false }),
-  login: () => ({ ok: false }),
+  login: async () => ({ ok: false }),
   logout: () => {},
   requestCode: () => '',
 })
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { ok: true }
   }
 
-  const login = (username: string, password: string) => {
+  const login = async (username: string, password: string) => {
     const users = loadUsers()
     const lowerU = username.toLowerCase()
     const found = users.find(u => u.username.toLowerCase() === lowerU && u.password === password)
@@ -81,26 +81,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser({ username: found.username, email: found.email })
       return { ok: true }
     }
-    fetch("https://inferforge-email.asdwwas233.workers.dev/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
-    })
-      .then(r => r.json())
-      .then(j => {
-        if (j?.ok && j.user) {
-          const u = { username: j.user.username, email: j.user.email }
-          const exists = loadUsers().some(x => x.username.toLowerCase() === u.username.toLowerCase())
-          if (!exists) {
-            const all = loadUsers()
-            all.push({ ...u, password } as StoredUser)
-            saveUsers(all)
-          }
-          setUser(u)
-        }
+    try {
+      const r = await fetch("https://inferforge-email.asdwwas233.workers.dev/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
       })
-      .catch(() => {})
-    return { ok: false, error: 'Invalid username or password. If you registered on another device, try again — syncing with server…' }
+      const j: any = await r.json().catch(() => ({}))
+      if (r.ok && j?.ok && j.user) {
+        const u = { username: j.user.username, email: j.user.email }
+        const all = loadUsers()
+        if (!all.some(x => x.username.toLowerCase() === u.username.toLowerCase())) {
+          all.push({ ...u, password } as StoredUser)
+          saveUsers(all)
+        }
+        setUser(u)
+        return { ok: true }
+      }
+      return { ok: false, error: j?.error || 'Invalid username or password.' }
+    } catch {
+      return { ok: false, error: 'Network error. Check your connection.' }
+    }
   }
 
   const logout = () => setUser(null)
