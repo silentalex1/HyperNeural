@@ -448,6 +448,9 @@ def serve_command(port: int, host: str) -> None:
             if trimmed == "/account-register/login":
                 self._send_login_ui()
                 return
+            if trimmed == "/account-dashboard":
+                self._send_dashboard_ui()
+                return
             if trimmed in ("/", "/index.html"):
                 self._send_chat_ui()
                 return
@@ -464,6 +467,9 @@ def serve_command(port: int, host: str) -> None:
             parsed = urlparse(self.path)
             if parsed.path == "/api/register/send-code":
                 self._send_register_code()
+                return
+            if parsed.path == "/api/premium/status/alexw":
+                self._send_premium_status()
                 return
             if parsed.path == "/admin-api/login":
                 self._admin_login()
@@ -518,6 +524,14 @@ def serve_command(port: int, host: str) -> None:
             path = Path(__file__).with_name("account_login.html")
             data = path.read_text(encoding="utf-8").encode("utf-8")
             self._send_bytes(data, "text/html; charset=utf-8")
+
+        def _send_dashboard_ui(self):
+            path = Path(__file__).with_name("account_dashboard.html")
+            data = path.read_text(encoding="utf-8").encode("utf-8")
+            self._send_bytes(data, "text/html; charset=utf-8")
+
+        def _send_premium_status(self):
+            self._send_json({"ok": True, "plan": "free", "messages_used": 0, "messages_limit": 100})
 
         def _read_json(self) -> dict:
             length = int(self.headers.get("Content-Length", "0") or 0)
