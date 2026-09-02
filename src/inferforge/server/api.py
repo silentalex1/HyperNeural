@@ -6,7 +6,7 @@ from typing import Any, AsyncIterator, Literal
 
 from fastapi import FastAPI, HTTPException, Depends, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse, HTMLResponse
 from pydantic import BaseModel, Field
 
 from inferforge import __version__
@@ -48,6 +48,29 @@ class ChatCompletionRequest(BaseModel):
     stream: bool = False
     temperature: float | None = None
     max_tokens: int | None = None
+
+
+@app.get("/")
+def root() -> dict[str, Any]:
+    return {
+        "name": "InferForge",
+        "version": __version__,
+        "status": "online",
+        "channel": "beta",
+        "docs": "/docs",
+        "default_model": "inferforge-beta"
+    }
+
+
+@app.get("/chat")
+def get_chat_ui() -> HTMLResponse:
+    import os
+    chat_ui_path = os.path.join(os.path.dirname(__file__), "..", "commands", "chat_ui.html")
+    try:
+        with open(chat_ui_path, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read(), status_code=200)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Chat UI not found")
 
 
 def _resolve_model_name(name: str) -> str:
