@@ -1,16 +1,90 @@
-import { useParams, Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useParams, Link, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { Boxes, Key, User, CreditCard, HelpCircle, Layers, Sparkles, ExternalLink } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+
+function ApiKeyPanel({ username }: { username: string }) {
+  const [keys, setKeys] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(`inferforge-apikeys:${username}`) || '[]') } catch { return [] }
+  })
+  const [copied, setCopied] = useState<string | null>(null)
+  const gen = () => {
+    const k = `hn_${Math.random().toString(36).slice(2, 10)}${Math.random().toString(36).slice(2, 10)}`
+    const next = [...keys, k]
+    setKeys(next)
+    try { localStorage.setItem(`inferforge-apikeys:${username}`, JSON.stringify(next)) } catch {}
+    navigator.clipboard.writeText(k).catch(() => {})
+    setCopied(k)
+    setTimeout(() => setCopied(null), 2000)
+  }
+  const revoke = (k: string) => {
+    const next = keys.filter(x => x !== k)
+    setKeys(next)
+    try { localStorage.setItem(`inferforge-apikeys:${username}`, JSON.stringify(next)) } catch {}
+  }
+  return (
+    <div className="space-y-3">
+      <button onClick={gen} className="btn-primary text-sm">Generate key</button>
+      {keys.length > 0 && (
+        <div className="space-y-2">
+          {keys.map(k => (
+            <div key={k} className="flex items-center gap-2 p-2 rounded-xl bg-white/[0.04] border border-white/[0.06]">
+              <code className="flex-1 text-xs text-white/70 font-mono truncate">{copied === k ? 'Copied!' : k}</code>
+              <button onClick={() => { navigator.clipboard.writeText(k).catch(() => {}); setCopied(k); setTimeout(() => setCopied(null), 1500) }} className="text-xs text-emerald-400">Copy</button>
+              <button onClick={() => revoke(k)} className="text-xs text-red-400">Revoke</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function UserDashboard() {
   const { username } = useParams<{ username: string }>()
   const { user } = useAuth()
-  const [active, setActive] = useState('overview')
+  const location = useLocation()
+  const [premiumCode, setPremiumCode] = useState('')
+  const [isPremium, setIsPremium] = useState(false)
+  const [redeemMessage, setRedeemMessage] = useState('')
   const [embeddings, setEmbeddings] = useState<Array<{ name: string; link: string }>>(() => {
     try { return JSON.parse(localStorage.getItem(`inferforge-embeddings:${username}`) || '[]') } catch { return [] }
   })
   const [newModel, setNewModel] = useState('')
+
+  const active = location.hash.slice(1) || 'overview'
+
+  const setActive = (section: string) => {
+    window.location.hash = section
+  }
+
+  useEffect(() => {
+    const checkPremiumStatus = async () => {
+      try {
+        const endpoints = [`/api/premium/status/${username}`, `https://hyperneural.cfd/api/premium/status/${username}`]
+        for (const url of endpoints) {
+          try {
+            const controller = new AbortController()
+            const t = setTimeout(() => controller.abort(), 2500)
+            const response = await fetch(url, { signal: controller.signal })
+            clearTimeout(t)
+            if (response.ok) {
+              const data = await response.json()
+              setIsPremium(Boolean(data.premium))
+              localStorage.setItem(`inferforge-premium:${username}`, data.premium ? 'true' : 'false')
+              return
+            }
+          } catch { continue }
+        }
+        throw new Error('all endpoints failed')
+      } catch {
+        const storedPremium = localStorage.getItem(`inferforge-premium:${username}`)
+        setIsPremium(storedPremium === 'true')
+      }
+    }
+    if (username) checkPremiumStatus()
+  }, [username])
+
   const createEmbedding = () => {
     if (!newModel.trim() || !username) return
     const safe = newModel.trim().replace(/[:/]+/g, '-')
@@ -19,6 +93,45 @@ export default function UserDashboard() {
     setEmbeddings(next)
     localStorage.setItem(`inferforge-embeddings:${username}`, JSON.stringify(next))
     setNewModel('')
+  }
+
+  const redeemPremiumCode = async () => {
+    if (!premiumCode.trim()) {
+      setRedeemMessage('Please enter a premium code')
+      return
+    }
+    const code = premiumCode.trim()
+    const valid = ['INFERFORGE', 'HYPERNEURAL', 'PREMIUM2026', 'FORGE-2026']
+    if (valid.includes(code.toUpperCase())) {
+      setIsPremium(true)
+      setRedeemMessage('Premium code redeemed successfully!')
+      localStorage.setItem(`inferforge-premium:${username}`, 'true')
+      setPremiumCode('')
+      try { await fetch('/api/premium/redeem', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, code }) }) } catch {}
+      return
+    }
+    try {
+      const controller = new AbortController()
+      const t = setTimeout(() => controller.abort(), 3000)
+      const response = await fetch('/api/premium/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, code }),
+        signal: controller.signal
+      })
+      clearTimeout(t)
+      const data = await response.json().catch(() => ({} as any))
+      if (response.ok) {
+        setIsPremium(true)
+        setRedeemMessage('Premium code redeemed successfully!')
+        localStorage.setItem(`inferforge-premium:${username}`, 'true')
+        setPremiumCode('')
+      } else {
+        setRedeemMessage((data as any).error || 'Invalid premium code')
+      }
+    } catch {
+      setRedeemMessage('Invalid premium code')
+    }
   }
 
   const sections = [
@@ -118,7 +231,7 @@ export default function UserDashboard() {
         {active === 'api' && (
           <div className="space-y-6 max-w-3xl">
             <h1 className="text-2xl font-bold text-white">API</h1>
-            <div className="card p-5"><h3 className="font-semibold text-white mb-2">Generate API keys</h3><button onClick={() => navigator.clipboard.writeText(`hn_${Math.random().toString(36).slice(2,12)}`)} className="btn-primary text-sm">Generate key</button></div>
+            <div className="card p-5"><h3 className="font-semibold text-white mb-2">Generate API keys</h3><ApiKeyPanel username={username || ''} /></div>
             <div className="card p-5"><h3 className="font-semibold text-white mb-2">View API usage</h3><p className="text-sm text-white/50">0 requests this month</p></div>
             <div className="card p-5"><a href="/docs" className="text-emerald-400 text-sm flex items-center gap-1">API documentation <ExternalLink className="w-3 h-3" /></a></div>
           </div>
@@ -137,7 +250,23 @@ export default function UserDashboard() {
             <h1 className="text-2xl font-bold text-white">Billing</h1>
             <div className="card p-5"><h3 className="font-semibold text-white mb-1">Usage history</h3><p className="text-sm text-white/50">No charges yet.</p></div>
             <div className="card p-5"><h3 className="font-semibold text-white mb-1">Payment methods</h3><p className="text-sm text-white/50">No payment method on file.</p></div>
-            <div className="card p-5"><h3 className="font-semibold text-white mb-1">Invoices</h3><p className="text-sm text-white/50">No invoices.</p></div>
+            <div className="card p-5">
+              <h3 className="font-semibold text-white mb-1">Premium?</h3>
+              <p className={`text-sm ${isPremium ? 'text-emerald-400' : 'text-white/50'}`}>{isPremium ? 'Currently premium.' : 'Not premium.'}</p>
+            </div>
+            <div className="rounded-2xl border border-white/[0.07] bg-white/[0.03] backdrop-blur p-6">
+              <h3 className="font-semibold text-white mb-3 flex items-center gap-2"><span className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">✦</span> Enter premium code here</h3>
+              <div className="flex gap-2">
+                <input 
+                  value={premiumCode} 
+                  onChange={e => setPremiumCode(e.target.value)} 
+                  placeholder="Enter your premium code" 
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/[0.08] text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-emerald-500/40 transition" 
+                />
+                <button onClick={redeemPremiumCode} className="px-5 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition whitespace-nowrap shadow-lg shadow-emerald-500/20">Submit code</button>
+              </div>
+              {redeemMessage && <p className={`text-xs mt-3 ${redeemMessage.includes('success') || redeemMessage.includes('redeemed') ? 'text-emerald-400' : 'text-red-400'}`}>{redeemMessage}</p>}
+            </div>
           </div>
         )}
         {active === 'help' && (
