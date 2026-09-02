@@ -11,6 +11,7 @@ import Auth from './pages/Auth'
 import Account from './pages/Account'
 import UserDashboard from './pages/UserDashboard'
 import OurModels from './pages/OurModels'
+import Batnight from './pages/Batnight'
 
 export default function App() {
   const location = useLocation()
@@ -20,8 +21,9 @@ export default function App() {
     return <Chat />
   }
 
+  const isHome = location.pathname === '/'
   return (
-    <div className="min-h-screen flex flex-col bg-white text-gray-900 dark:bg-ink dark:text-paper">
+    <div className="min-h-screen flex flex-col bg-[#0e1b3d] text-white antialiased">
       <Navbar />
       <main className="flex-1">
         <Routes>
@@ -36,12 +38,13 @@ export default function App() {
           <Route path="/account" element={<Account />} />
           <Route path="/dashboard/:username" element={<UserDashboard />} />
           <Route path="/our-models" element={<OurModels />} />
+          <Route path="/batnight" element={<Batnight />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/chatui" element={<Chat />} />
           <Route path="/v1/chatui" element={<Chat />} />
         </Routes>
       </main>
-      <Footer />
+      {!isHome && <Footer />}
     </div>
   )
 }

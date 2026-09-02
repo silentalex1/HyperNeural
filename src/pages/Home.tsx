@@ -29,6 +29,17 @@ export default function Home(){
     window.addEventListener('mousemove',h)
     return()=>window.removeEventListener('mousemove',h)
   },[])
+  const smooth=useRef({x:-9999,y:-9999})
+  useEffect(()=>{
+    let raf2=0
+    const tick=()=>{
+      smooth.current.x += (mouse.x - smooth.current.x)*0.12
+      smooth.current.y += (mouse.y - smooth.current.y)*0.12
+      raf2=requestAnimationFrame(tick)
+    }
+    tick()
+    return()=>cancelAnimationFrame(raf2)
+  },[mouse])
   useEffect(()=>{
     const c=canvasRef.current
     if(!c) return
@@ -39,33 +50,38 @@ export default function Home(){
     const draw=()=>{
       const dpr=window.devicePixelRatio||1
       const w=window.innerWidth, h=window.innerHeight
-      c.width=w*dpr; c.height=h*dpr
-      c.style.width=w+'px'; c.style.height=h+'px'
+      if(c.width!==Math.floor(w*dpr) || c.height!==Math.floor(h*dpr)){
+        c.width=Math.floor(w*dpr); c.height=Math.floor(h*dpr)
+        c.style.width=w+'px'; c.style.height=h+'px'
+      }
       ctx.setTransform(dpr,0,0,dpr,0,0)
       ctx.clearRect(0,0,w,h)
       const cols=Math.ceil(w/size)+1, rows=Math.ceil(h/size)+1
+      const mx=smooth.current.x, my=smooth.current.y
       for(let y=0;y<rows;y++){
         for(let x=0;x<cols;x++){
           const px=x*size, py=y*size
-          const dx=px - mouse.x, dy=py - mouse.y
-          const dist=Math.hypot(dx,dy)
-          const hover=Math.max(0, 1 - dist/260)
-          const pop=hover*hover
-          const alpha=0.06 + pop*0.22
-          const b=18 + pop*22
-          const scale=1 + pop*0.16
+          const dist=Math.hypot(px+size/2 - mx, py+size/2 - my)
+          const hover=Math.max(0, 1 - dist/220)
+          const pop=Math.pow(hover,1.8)
+          const alpha=0.05 + pop*0.22
+          const scale=1 + pop*0.14
           ctx.save()
           ctx.translate(px+size/2, py+size/2)
           ctx.scale(scale,scale)
           ctx.translate(-size/2, -size/2)
           ctx.fillStyle=`rgba(255,255,255,${alpha})`
-          ctx.fillRect(1,1,size-2,size-2)
-          if(pop>0.12){
-            ctx.strokeStyle=`rgba(99,102,241,${0.15+pop*0.35})`
+          ctx.beginPath()
+          ctx.roundRect(2,2,size-4,size-4,6)
+          ctx.fill()
+          if(pop>0.10){
+            ctx.strokeStyle=`rgba(99,102,241,${0.18+pop*0.3})`
             ctx.lineWidth=1
-            ctx.shadowColor=`rgba(99,102,241,${0.4*pop})`
-            ctx.shadowBlur=b
-            ctx.strokeRect(1.5,1.5,size-3,size-3)
+            ctx.shadowColor=`rgba(99,102,241,${0.35*pop})`
+            ctx.shadowBlur=14+pop*16
+            ctx.beginPath()
+            ctx.roundRect(2,2,size-4,size-4,6)
+            ctx.stroke()
           }
           ctx.restore()
         }
@@ -74,14 +90,14 @@ export default function Home(){
     }
     draw()
     return()=>cancelAnimationFrame(raf)
-  },[mouse])
+  },[])
   const d=Math.max(0,target-now)
   const days=Math.floor(d/(24*60*60*1000))
   const hours=Math.floor(d%(24*60*60*1000)/(60*60*1000))
   const mins=Math.floor(d%(60*60*1000)/(60*1000))
   const secs=Math.floor(d%(60*1000)/1000)
   const Cell=({v,l}:{v:string,l:string})=>(
-    <div className="rounded-2xl border border-white/10 bg-white/[0.06] backdrop-blur-xl px-7 py-6 min-w-[104px] text-center shadow-[0_8px_32px_rgba(0,0,0,0.35),0_1px_0_rgba(255,255,255,0.06)_inset]">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.07] backdrop-blur-xl px-7 py-6 min-w-[104px] text-center shadow-[0_16px_40px_rgba(0,0,0,0.4),0_1px_0_rgba(255,255,255,0.08)_inset] will-change-transform transition-transform duration-300 hover:scale-[1.02]">
       <div className="text-3xl md:text-[34px] font-extrabold tracking-tight text-white tabular-nums">{v}</div>
       <div className="text-[10px] tracking-[0.18em] uppercase text-white/45 mt-1.5 font-semibold">{l}</div>
     </div>
