@@ -471,6 +471,9 @@ def serve_command(port: int, host: str) -> None:
             if parsed.path == "/api/premium/status/alexw":
                 self._send_premium_status()
                 return
+            if parsed.path == "/api/generate-api-key":
+                self._generate_api_key()
+                return
             if parsed.path == "/admin-api/login":
                 self._admin_login()
                 return
@@ -617,6 +620,11 @@ def serve_command(port: int, host: str) -> None:
                     self._send_json({"models": models})
                 else:
                     self._send_json({"error": "Not found"}, 404)
+
+        def _generate_api_key(self):
+            import secrets
+            api_key = "forge-" + secrets.token_urlsafe(32)
+            self._send_json({"ok": True, "api_key": api_key})
 
         def _send_favicon(self):
             svg = (

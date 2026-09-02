@@ -343,3 +343,11 @@ def ollama_chat(body: OllamaChatRequest, api_key: str = Depends(verify_api_key) 
         "message": {"role": "assistant", "content": content},
         "done": True,
     }
+
+
+@app.post("/api/generate-api-key")
+def generate_api_key() -> dict[str, Any]:
+    import secrets
+    api_key = "forge-" + secrets.token_urlsafe(32)
+    return {"ok": True, "api_key": api_key}
+
