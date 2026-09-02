@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Models | InferForge</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="models.css">
+</head>
+<body class="bg-[#030304] text-white font-sans antialiased min-h-screen flex flex-col justify-between relative overflow-x-hidden page-fade-in">
+
+    <nav class="bg-[#060608]/80 backdrop-blur-md sticky top-0 z-50 border-b border-white/[0.04]">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+            <a href="../index.html" class="font-bold text-xl tracking-tight text-white">InferForge</a>
+            <div class="flex items-center gap-6">
+                <a href="../index.html" class="text-sm text-gray-400 hover:text-white transition-colors">Go back</a>
+                <button class="bg-accent hover:bg-accentHover text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all">Create Account</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-12 w-full flex-grow relative z-10">
+        <div class="max-w-3xl mx-auto text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-3">Explore AI Models</h1>
+            <p class="text-gray-400 text-base font-normal">Search and pull models directly into your InferForge runtime.</p>
+        </div>
+
+        <div class="max-w-3xl mx-auto mb-14">
+            <div class="flex flex-col sm:flex-row items-center gap-3">
+                <div class="relative w-full">
+                    <div class="absolute left-4 inset-y-0 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </div>
+                    <input type="text" id="model-search" placeholder="Search models..." class="search-input w-full bg-[#0d0d12] text-white placeholder-gray-500 text-sm rounded-xl py-3.5 pl-11 pr-4 border border-white/[0.08] focus:border-accent focus:outline-none transition-all">
+                </div>
+                <button class="w-full sm:w-auto bg-accent hover:bg-accentHover text-white text-sm font-medium px-5 py-3.5 rounded-xl transition-colors whitespace-nowrap flex items-center justify-center gap-2">
+                    <span>+</span> Add your model
+                </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-2.5 px-1 font-normal">You can pull more models too.</p>
+        </div>
+
+        <div id="models-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="dolphin-mixtral:8x7b">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">dolphin-mixtral:8x7b</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull dolphin-mixtral:8x7b</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="prysmis:latest">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">prysmis:latest</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull prysmis:latest</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="gemma2:9b">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">gemma2:9b</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull gemma2:9b</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="llama3.1:8b">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">llama3.1:8b</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull llama3.1:8b</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="gemini-3-flash-preview:latest">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">gemini-3-flash-preview:latest</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull gemini-3-flash-preview:latest</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="oroboroslabs/claude-fable-5Q:latest">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight break-all">oroboroslabs/claude-fable-5Q:latest</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull oroboroslabs/claude-fable-5Q:latest</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="glm-5.2:cloud">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">glm-5.2:cloud</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull glm-5.2:cloud</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="qwen2.5vl:7b">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">qwen2.5vl:7b</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull qwen2.5vl:7b</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="prysmisai-v3:latest">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">prysmisai-v3:latest</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull prysmisai-v3:latest</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="embeddinggemma:latest">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">embeddinggemma:latest</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull embeddinggemma:latest</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="prysmisai-v2:latest">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">prysmisai-v2:latest</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull prysmisai-v2:latest</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="prysmisai-ft:latest">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">prysmisai-ft:latest</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull prysmisai-ft:latest</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="qwen2.5-coder:7b">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">qwen2.5-coder:7b</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull qwen2.5-coder:7b</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="prysmisai-fast:latest">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">prysmisai-fast:latest</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull prysmisai-fast:latest</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="prysmisai:latest">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">prysmisai:latest</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull prysmisai:latest</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="qwen2.5-coder:14b">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">qwen2.5-coder:14b</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull qwen2.5-coder:14b</code>
+                </div>
+            </div>
+
+            <div class="model-card bg-[#0a0a0d] hover:bg-[#0e0e13] p-5 rounded-2xl transition-all duration-200" data-name="prysmaisai:latest">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="font-bold text-base text-white tracking-tight">prysmaisai:latest</h3>
+                </div>
+                <div class="bg-black/50 p-3 rounded-xl font-mono text-xs text-gray-400">
+                    <code>forge pull prysmaisai:latest</code>
+                </div>
+            </div>
+        </div>
+
+        <div id="no-results" class="hidden text-center text-gray-500 py-12 text-sm">
+            No models found matching your search.
+        </div>
+    </main>
+
+    <footer class="bg-black py-8 mt-12 border-t border-white/[0.03]">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+            <span class="font-bold text-white text-base">InferForge</span>
+            <span>&copy; 2026 InferForge</span>
+        </div>
+    </footer>
+
+    <script src="models.js"></script>
+</body>
+</html>

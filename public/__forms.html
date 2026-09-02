@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>forms</title>
+</head>
+<body>
+  <form name="verify-code" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="verify-code">
+    <input type="hidden" name="subject" value="Your InferForge code">
+    <input name="email" type="email">
+    <input name="code" type="text">
+    <input name="bot-field">
+  </form>
+  <form name="create-account" method="POST" data-netlify="true" netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="create-account">
+    <input name="name" type="text">
+    <input name="email" type="email">
+    <input name="code" type="text">
+    <input name="bot-field">
+  </form>
+</body>
+</html>

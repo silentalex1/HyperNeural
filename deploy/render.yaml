@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: inferforge-api
+    env: python
+    region: oregon
+    plan: starter
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt && pip install -e .
+    startCommand: python -m uvicorn inferforge.server.api:app --host 0.0.0.0 --port $PORT --workers 2
+    healthCheckPath: /health
+    envVars:
+      - key: INFERFORGE_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.11.0

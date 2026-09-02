@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InferForge</title>
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --sidebar: #f3f4f6;
+      --line: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --soft: #4b5563;
+      --bubble: #f3f4f6;
+      --accent: #111111;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+    }
+    .app { display: flex; height: 100%; width: 100%; }
+    .sidebar {
+      width: 260px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--line);
+      display: none;
+      flex-direction: column;
+    }
+    @media (min-width: 768px) { .sidebar { display: flex; } }
+    .sidebar-head, .topbar {
+      height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+    .sidebar-head {
+      background: var(--sidebar);
+      font-weight: 600;
+      color: #374151;
+    }
+    .history {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    .history-empty {
+      color: #9ca3af;
+      font-size: 13px;
+      padding: 10px 12px;
+    }
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background: var(--panel);
+      position: relative;
+    }
+    .brand { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+    .badge {
+      margin-left: 8px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      background: var(--bubble);
+      border-radius: 999px;
+      padding: 4px 8px;
+    }
+    .top-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .select-wrap { position: relative; }
+    select {
+      appearance: none;
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      color: #374151;
+      border-radius: 10px;
+      padding: 8px 32px 8px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    select:focus { outline: 2px solid #9ca3af; border-color: transparent; }
+    .select-wrap svg {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      fill: #6b7280;
+      pointer-events: none;
+    }
+    .account {
+      background: var(--accent);
+      color: #fff;
+      border: 0;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    .account:hover { background: #1f2937; }
+    .login-tab {
+      background: #fff;
+      color: #374151;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+    }
+    .login-tab:hover { background: #f9fafb; }
+    .thread {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 24px 140px;
+      display: flex;
+      justify-content: center;
+    }
+    .thread-inner { width: 100%; max-width: 768px; display: flex; flex-direction: column; gap: 28px; }
+    .row { display: flex; width: 100%; }
+    .row.user { justify-content: flex-end; }
+    .row.assistant { justify-content: flex-start; align-items: flex-start; gap: 12px; }
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: #111;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .bubble {
+      max-width: 80%;
+      border-radius: 16px;
+      padding: 12px 18px;
+      line-height: 1.65;
+      color: #1f2937;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .bubble.user { background: var(--bubble); }
+    .bubble.assistant {
+      max-width: 85%;
+      background: #fff;
+      border: 1px solid #f3f4f6;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      padding: 16px 22px;
+      white-space: normal;
+    }
+    .bubble.assistant p {
+      margin: 0;
+      color: #111827;
+      font-size: 14.5px;
+      letter-spacing: -0.01em;
+      line-height: 1.7;
+    }
+    .bubble a.here {
+      color: #2563eb;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .bubble a.here:hover { text-decoration: underline; }
+    .reply {
+      animation: fadein 0.45s ease;
+    }
+    @keyframes fadein {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: none; }
+    }
+    .thinking {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 22px;
+      color: #9ca3af;
+      font-size: 13px;
+    }
+    .dots { display: flex; gap: 5px; }
+    .thinking i {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #c4c7cc;
+      display: block;
+      animation: think 1.2s ease-in-out infinite;
+    }
+    .thinking i:nth-child(2) { animation-delay: 0.18s; }
+    .thinking i:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes think {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.3; }
+      40% { transform: translateY(-3px); opacity: 1; }
+    }
+    .composer {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 20px 24px 24px;
+      display: flex;
+      justify-content: center;
+      background: linear-gradient(to top, #fff 70%, rgba(255,255,255,0));
+    }
+    .composer-box { width: 100%; max-width: 768px; position: relative; }
+    .composer textarea {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      border-radius: 999px;
+      padding: 16px 56px 16px 22px;
+      font-size: 14px;
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      resize: none;
+      overflow: hidden;
+      min-height: 56px;
+      max-height: 160px;
+      line-height: 1.45;
+      font-family: inherit;
+      white-space: pre-wrap;
+    }
+    .composer textarea:focus {
+      outline: none;
+      background: #fff;
+      box-shadow: 0 0 0 2px #e5e7eb;
+    }
+    .send {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      width: 40px;
+      height: 40px;
+      border: 0;
+      border-radius: 999px;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .send:hover { background: #1f2937; }
+    .send:disabled { opacity: 0.45; cursor: not-allowed; }
+    .status {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="sidebar-head">Chat History</div>
+      <div class="history" id="history">
+        <div class="history-empty">No chats yet</div>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <span class="brand">InferForge</span>
+        <span class="badge">stable release</span>
+        <div class="top-actions">
+          <div class="select-wrap">
+            <select id="modelSelect">
+              <option value="inferforge-beta" selected>inferforge-beta</option>
+              <option value="InferForge-Omni">InferForge-Omni</option>
+              <option value="InferForge-Fast">InferForge-Fast</option>
+              <option value="InferForge-Reasoning">InferForge-Reasoning</option>
+            </select>
+            <svg viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+          </div>
+          <a class="login-tab" href="/account-register/login">Login</a>
+          <a class="account" id="createAccount" href="/account-register">Create account</a>
+        </div>
+      </header>
+      <div class="thread" id="thread">
+        <div class="thread-inner" id="messages"></div>
+      </div>
+      <div class="composer">
+        <div class="composer-box">
+          <textarea id="prompt" rows="1" placeholder="Ask InferForge anything.." autocomplete="off"></textarea>
+          <button class="send" id="send" type="button" aria-label="Send">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3.4 20.6L21 12 3.4 3.4 3 10l11 2-11 2z"></path>
+            </svg>
+          </button>
+          <div class="status" id="status"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    const DEFAULT_MODELS = ["inferforge-beta", "InferForge-Omni", "InferForge-Fast", "InferForge-Reasoning"];
+    const messagesEl = document.getElementById("messages");
+    const promptEl = document.getElementById("prompt");
+    const sendEl = document.getElementById("send");
+    const modelEl = document.getElementById("modelSelect");
+    const statusEl = document.getElementById("status");
+    let busy = false;
+
+    function addUserBubble(text) {
+      const row = document.createElement("div");
+      row.className = "row user";
+      const bubble = document.createElement("div");
+      bubble.className = "bubble user";
+      bubble.textContent = text;
+      row.appendChild(bubble);
+      messagesEl.appendChild(row);
+      row.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+
+    function addAssistantBubble(html) {
+      const row = document.createElement("div");
+      row.className = "row assistant";
+      row.innerHTML = '<div class="avatar">IF</div><div class="bubble assistant"></div>';
+      row.querySelector(".bubble").innerHTML = html;
+      messagesEl.appendChild(row);
+      row.scrollIntoView({ behavior: "smooth", block: "end" });
+      return row.querySelector(".bubble");
+    }
+
+    function setModels(names) {
+      const unique = [];
+      ["inferforge-beta"].concat(names || []).concat(DEFAULT_MODELS).forEach((name) => {
+        if (name && unique.indexOf(name) === -1) unique.push(name);
+      });
+      modelEl.innerHTML = unique.map((name) => {
+        return '<option value="' + name + '"' + (name === "inferforge-beta" ? " selected" : "") + ">" + name + "</option>";
+      }).join("");
+      modelEl.value = "inferforge-beta";
+    }
+
+    async function loadModels() {
+      try {
+        const res = await fetch("/api/tags");
+        if (!res.ok) throw new Error("unavailable");
+        const data = await res.json();
+        const names = (data.models || []).map((item) => item.name).filter(Boolean);
+        setModels(names);
+      } catch (err) {
+        setModels(DEFAULT_MODELS);
+      }
+      statusEl.textContent = "Ready · inferforge-beta";
+    }
+
+    function wait(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function sendMessage() {
+      const content = promptEl.value;
+      if (!content.trim() || busy) return;
+      busy = true;
+      sendEl.disabled = true;
+      promptEl.value = "";
+      promptEl.style.height = "56px";
+      addUserBubble(content);
+      const bubble = addAssistantBubble('<div class="thinking"><div class="dots"><i></i><i></i><i></i></div><span>Thinking</span></div>');
+      await wait(1400);
+      bubble.innerHTML = '<div class="reply"><p>Please create an account @ <a class="here" href="/account-register">here</a>.</p></div>';
+      busy = false;
+      sendEl.disabled = false;
+      promptEl.focus();
+    }
+
+    sendEl.addEventListener("click", () => sendMessage());
+    ["keydown", "keyup", "keypress"].forEach((type) => {
+      promptEl.addEventListener(type, (event) => {
+        event.stopPropagation();
+        if (type === "keydown" && event.key === "Enter" && !event.shiftKey) {
+          event.preventDefault();
+          sendMessage();
+        }
+      });
+    });
+    promptEl.addEventListener("input", () => {
+      promptEl.style.height = "56px";
+      promptEl.style.height = Math.min(promptEl.scrollHeight, 160) + "px";
+    });
+    const createEl = document.getElementById("createAccount");
+    if (localStorage.getItem("inferforge_hide_create") === "1") {
+      createEl.style.display = "none";
+    }
+    createEl.addEventListener("click", () => {
+      localStorage.setItem("inferforge_hide_create", "1");
+      createEl.style.display = "none";
+    });
+    loadModels();
+    promptEl.focus();
+  </script>
+</body>
+</html>

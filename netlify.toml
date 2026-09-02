@@ -1,0 +1,25 @@
+[build]
+  publish = "public"
+  command = "node -e \"process.exit(0)\""
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/account-register"
+  to = "/account-register/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/account-register/login"
+  to = "/account-register/login/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-store"

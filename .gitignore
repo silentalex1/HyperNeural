@@ -1,0 +1,9 @@
+.netlify
+node_modules/
+.model-cache/
+dist/
+build/
+.env
+.env.local
+Thumbs.db
+.DS_Store

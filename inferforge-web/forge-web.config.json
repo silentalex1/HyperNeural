@@ -1,0 +1,48 @@
+{
+  "name": "inferforge-web",
+  "version": "1.0.0",
+  "models": [
+    {
+      "id": "inferforge-beta",
+      "name": "inferforge-beta",
+      "quantization": "q4_k_m",
+      "cdn_url": "https://huggingface.co/inferforge-beta/resolve/main/inferforge-beta-q4_k_m.gguf",
+      "provider": "huggingface",
+      "size_estimate_mb": 450,
+      "local": false,
+      "progressive": false
+    },
+    {
+      "id": "prysmisai-fast:latest",
+      "name": "prysmisai-fast:latest",
+      "quantization": "q4_k_m",
+      "cdn_url": "https://huggingface.co/prysmisai-fast:latest/resolve/main/prysmisai-fast:latest-q4_k_m.gguf",
+      "provider": "huggingface",
+      "size_estimate_mb": 450,
+      "local": false,
+      "progressive": false
+    },
+    {
+      "id": "glm-5.2:cloud",
+      "name": "glm-5.2:cloud",
+      "quantization": "q4_k_m",
+      "cdn_url": "https://huggingface.co/glm-5.2:cloud/resolve/main/glm-5.2:cloud-q4_k_m.gguf",
+      "provider": "huggingface",
+      "size_estimate_mb": 450,
+      "local": false,
+      "progressive": false
+    }
+  ],
+  "cdn": {
+    "provider": "huggingface",
+    "base_url": "https://huggingface.co",
+    "cache_enabled": true,
+    "cache_max_size_mb": 2048
+  },
+  "runtime": {
+    "backend": "webgpu",
+    "fallback": "wasm",
+    "quantization": "q4_k_m",
+    "context_length": 2048
+  }
+}

@@ -1,0 +1,52 @@
+Metadata-Version: 2.4
+Name: inferforge
+Version: 0.2.0
+Summary: InferForge — a faster local LLM runtime. Forge models. Run them. No friction.
+Author: InferForge
+License: MIT
+Project-URL: Homepage, https://github.com/inferforge/inferforge
+Project-URL: Documentation, https://github.com/inferforge/inferforge#readme
+Keywords: llm,local-ai,ollama,gguf,inference,cli
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: click>=8.1
+Requires-Dist: rich>=13.7
+Requires-Dist: httpx>=0.27
+Requires-Dist: pydantic>=2.6
+Requires-Dist: pydantic-settings>=2.2
+Requires-Dist: uvicorn>=0.30
+Requires-Dist: fastapi>=0.111
+Requires-Dist: orjson>=3.10
+Requires-Dist: platformdirs>=4.2
+Requires-Dist: boto3>=1.34
+Requires-Dist: aiobotocore>=2.12
+Requires-Dist: aiofiles>=24.1
+Requires-Dist: psutil>=6.0
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: pytest-cov>=4.1; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.23; extra == "dev"
+Requires-Dist: pytest-mock>=3.12; extra == "dev"
+Requires-Dist: ruff>=0.5; extra == "dev"
+Requires-Dist: mypy>=1.8; extra == "dev"
+Requires-Dist: black>=24.0; extra == "dev"
+Provides-Extra: native
+Requires-Dist: llama-cpp-python>=0.3; extra == "native"
+Requires-Dist: torch>=2.4; extra == "native"
+Requires-Dist: transformers>=4.44; extra == "native"
+Provides-Extra: training
+Requires-Dist: torch>=2.4; extra == "training"
+Requires-Dist: transformers>=4.44; extra == "training"
+Requires-Dist: datasets>=2.0; extra == "training"
+Requires-Dist: accelerate>=0.20; extra == "training"
+Requires-Dist: peft>=0.8; extra == "training"
+Provides-Extra: docs
+Requires-Dist: mkdocs>=1.5; extra == "docs"
+Requires-Dist: mkdocs-material>=9.5; extra == "docs"
+Requires-Dist: mkdocstrings[python]>=0.24; extra == "docs"

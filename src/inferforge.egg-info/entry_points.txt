@@ -1,0 +1,3 @@
+[console_scripts]
+forge = inferforge.cli:forge
+run = inferforge.cli:run_cmd

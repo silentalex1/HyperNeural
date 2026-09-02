@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download | InferForge</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="download.css">
+</head>
+<body class="bg-[#030304] text-white antialiased font-sans min-h-screen relative overflow-x-hidden flex flex-col justify-between">
+
+    <div class="top-right-curve pointer-events-none">
+        <svg viewBox="0 0 600 400" preserveAspectRatio="none" class="w-full h-full">
+            <defs>
+                <linearGradient id="topRightGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#4f7cff" stop-opacity="0" />
+                    <stop offset="40%" stop-color="#4f7cff" stop-opacity="0.5" />
+                    <stop offset="80%" stop-color="#8daaff" stop-opacity="0.95" />
+                    <stop offset="100%" stop-color="#4f7cff" stop-opacity="0.2" />
+                </linearGradient>
+                <filter id="topRightGlow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="12" result="blur" />
+                    <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                </filter>
+            </defs>
+            <path d="M 600,0 C 460,130 220,250 0,380" fill="none" stroke="url(#topRightGrad)" stroke-width="2.5" filter="url(#topRightGlow)" />
+        </svg>
+    </div>
+
+    <nav class="flex justify-between items-center max-w-5xl mx-auto w-full px-6 py-8 relative z-10">
+        <span class="font-bold text-xl tracking-tight">InferForge</span>
+        <div class="flex items-center gap-6">
+            <a href="../index.html" class="text-sm text-gray-400 hover:text-white transition-colors">Go back</a>
+        </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto w-full px-6 py-10 relative z-10 my-auto">
+        <h1 class="text-4xl font-extrabold mb-4 text-center tracking-tight">Install InferForge</h1>
+        <p class="text-center text-gray-400 mb-12 text-sm">Clone the repo, run the installer, then <span style="color:#ff8a3d">forge chat</span></p>
+
+        <div class="space-y-4 mb-16">
+            <div class="group flex flex-col sm:flex-row sm:items-center gap-3 bg-white bg-opacity-5 px-6 py-4 rounded-2xl border border-gray-800">
+                <span class="text-blue-400 font-bold font-mono text-sm w-32">Windows</span>
+                <code class="text-gray-300 font-mono text-xs sm:text-sm bg-black bg-opacity-40 px-4 py-2 rounded-xl flex-1">powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1</code>
+            </div>
+            <div class="group flex flex-col sm:flex-row sm:items-center gap-3 bg-white bg-opacity-5 px-6 py-4 rounded-2xl border border-gray-800">
+                <span class="text-blue-400 font-bold font-mono text-sm w-32">macOS / Linux</span>
+                <code class="text-gray-300 font-mono text-xs sm:text-sm bg-black bg-opacity-40 px-4 py-2 rounded-xl flex-1">bash ./scripts/install.sh</code>
+            </div>
+            <div class="group flex flex-col sm:flex-row sm:items-center gap-3 bg-white bg-opacity-5 px-6 py-4 rounded-2xl border border-gray-800">
+                <span class="text-blue-400 font-bold font-mono text-sm w-32">pip</span>
+                <code class="text-gray-300 font-mono text-xs sm:text-sm bg-black bg-opacity-40 px-4 py-2 rounded-xl flex-1">pip install -e .</code>
+            </div>
+        </div>
+
+        <section class="mb-16">
+            <h2 class="text-xl font-semibold mb-5 text-gray-300">Quick start</h2>
+            <div class="bg-white bg-opacity-5 p-6 rounded-2xl border border-gray-800 font-mono text-sm space-y-2">
+                <div style="color:#ff8a3d"><span class="text-gray-600">$</span> forge import ollama</div>
+                <div style="color:#ff8a3d"><span class="text-gray-600">$</span> forge train</div>
+                <div style="color:#ff8a3d"><span class="text-gray-600">$</span> forge chat</div>
+                <div style="color:#ff8a3d"><span class="text-gray-600">$</span> forge list</div>
+                <div style="color:#ff8a3d"><span class="text-gray-600">$</span> forge serve</div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-xl font-semibold mb-5 text-gray-300">Changelog</h2>
+            <div class="bg-white bg-opacity-5 p-6 rounded-2xl border border-gray-800 space-y-3">
+                <p class="text-gray-300">[+] InferForge beta model + forge chat</p>
+                <p class="text-gray-300">[+] Agentic file tools (create / edit / delete)</p>
+                <p class="text-gray-300">[+] Improved forge train curriculum</p>
+                <p class="text-gray-300">[+] Official beta release</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="download.js"></script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #030304;
+  --card: rgba(255, 255, 255, 0.015);
+  --accent: #4f7cff;
+  --accent-hover: #698fff;
+  --orange-accent: #ff7a18;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: #ffffff;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+@layer components {
+  .bg-card {
+    background-color: var(--card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  .autostyle-logo-target {
+    padding: 0.35rem 1rem;
+    border-radius: 0.625rem;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .autostyle-logo-target:hover {
+    background-color: rgba(79, 124, 255, 0.1);
+    border-color: rgba(79, 124, 255, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(79, 124, 255, 0.12);
+  }
+}
+
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+.page-fade-in {
+  animation: pageIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: scale(0.985); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.cursor-blink {
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background-color: #ff7a18;
+  margin-left: 4px;
+  animation: blink 1s step-end infinite;
+  vertical-align: middle;
+  box-shadow: 0 0 10px rgba(255, 122, 24, 0.9);
+  border-radius: 1px;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.terminal-line {
+  margin-bottom: 6px;
+  opacity: 0;
+  animation: fade-in 0.15s ease-out forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.prompt-symbol {
+  color: #4f7cff;
+  margin-right: 10px;
+  font-weight: 700;
+}
+
+pre[class*="language-"] {
+  background: transparent !important;
+  text-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #e2e8f0 !important;
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.top-right-curve {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 520px;
+  height: 360px;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.bottom-arch-container {
+  position: absolute;
+  bottom: -60px;
+  left: 0;
+  width: 100%;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.bottom-ambient-glow {
+  position: absolute;
+  bottom: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 65%;
+  height: 140px;
+  background: radial-gradient(ellipse at center, rgba(79, 124, 255, 0.1) 0%, rgba(79, 124, 255, 0) 70%);
+  pointer-events: none;
+}
+
+.search-input {
+  background-color: #0d0d12 !important;
+  color: #ffffff !important;
+  caret-color: #4f7cff;
+}
+
+.search-input:-webkit-autofill,
+.search-input:-webkit-autofill:hover,
+.search-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0px 1000px #0d0d12 inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.model-card {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.model-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px -12px rgba(79, 124, 255, 0.25);
+}
+
+.cli-line {
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.cli-line:hover {
+  transform: translateX(3px);
+}
+
+/* Benchmark bar grow-in animation */
+@keyframes barGrow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+.bar-grow {
+  transform-origin: left center;
+  animation: barGrow 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Subtle custom scrollbar for code blocks and tables */
+.nice-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+.nice-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.nice-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.nice-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+.nice-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(79, 124, 255, 0.4);
+}
