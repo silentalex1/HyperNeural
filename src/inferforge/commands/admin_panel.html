@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InferForge Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 24px;
+            margin: 0 auto 15px;
+        }
+        .login-header h1 {
+            color: #1a1a2e;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .login-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .error-message {
+            background: #fee;
+            color: #c00;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 3px solid #c00;
+        }
+        .success-message {
+            background: #efe;
+            color: #0a0;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 3px solid #0a0;
+        }
+        .login-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+        .login-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .admin-panel {
+            display: none;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-header h2 {
+            font-size: 24px;
+        }
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .admin-content {
+            padding: 40px;
+            background: white;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .section {
+            margin-bottom: 35px;
+        }
+        .section h3 {
+            color: #1a1a2e;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .info-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+        }
+        .info-card label {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .info-card value {
+            display: block;
+            color: #1a1a2e;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .model-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .model-item {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 3px solid #667eea;
+        }
+        .model-item:last-child {
+            margin-bottom: 0;
+        }
+        .model-name {
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .model-status {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+        .model-status.loaded {
+            background: #dcfce7;
+            color: #15803d;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div id="loginForm">
+            <div class="login-header">
+                <div class="logo">IF</div>
+                <h1>Admin Panel</h1>
+                <p>Sign in with your admin account</p>
+            </div>
+            
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label for="username">Admin Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Admin Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                
+                <button type="submit" class="login-button">
+                    <span class="spinner" id="spinner"></span>
+                    <span>Login to InferForge</span>
+                </button>
+            </form>
+        </div>
+        
+        <div id="adminPanel" class="admin-panel">
+            <div class="admin-header">
+                <h2>InferForge Administration</h2>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+            
+            <div class="admin-content">
+                <div class="section">
+                    <h3>System Status</h3>
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <label>Engine Status</label>
+                            <value id="engineStatus">Online</value>
+                        </div>
+                        <div class="info-card">
+                            <label>Current Model</label>
+                            <value id="currentModel">inferforge-beta</value>
+                        </div>
+                        <div class="info-card">
+                            <label>Admin User</label>
+                            <value id="adminUser">-</value>
+                        </div>
+                        <div class="info-card">
+                            <label>Mode</label>
+                            <value>Standalone</value>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h3>Available Models</h3>
+                    <div class="model-list" id="modelList"></div>
+                </div>
+                
+                <div class="section">
+                    <h3>Quick Actions</h3>
+                    <button class="login-button" onclick="testModel()" style="margin-bottom: 10px;">
+                        Test Model
+                    </button>
+                    <button class="login-button" onclick="clearCache()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); margin-bottom: 10px;">
+                        Clear Model Cache
+                    </button>
+                    <button class="login-button" onclick="showSettings()" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); margin-bottom: 10px;">
+                        Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const loginForm = document.getElementById('loginFormElement');
+        const loginContainer = document.getElementById('loginForm');
+        const adminPanel = document.getElementById('adminPanel');
+        const errorMsg = document.getElementById('errorMessage');
+        const successMsg = document.getElementById('successMessage');
+        const spinner = document.getElementById('spinner');
+        
+        let currentUser = null;
+        
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await login();
+        });
+        
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            spinner.style.display = 'inline-block';
+            loginForm.querySelector('button').disabled = true;
+            
+            try {
+                const response = await fetch('/admin-api/login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username, password})
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentUser = username;
+                    document.getElementById('adminUser').textContent = username;
+                    loginContainer.style.display = 'none';
+                    adminPanel.style.display = 'block';
+                    loadDashboard();
+                    sessionStorage.setItem('admin_user', username);
+                } else {
+                    showError(data.message || 'Invalid credentials');
+                }
+            } catch (err) {
+                showError('Connection error: ' + err.message);
+            } finally {
+                spinner.style.display = 'none';
+                loginForm.querySelector('button').disabled = false;
+            }
+        }
+        
+        function logout() {
+            sessionStorage.removeItem('admin_user');
+            currentUser = null;
+            loginContainer.style.display = 'block';
+            adminPanel.style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            errorMsg.style.display = 'none';
+        }
+        
+        async function loadDashboard() {
+            try {
+                const response = await fetch('/admin-api/models');
+                const models = await response.json();
+                
+                const modelList = document.getElementById('modelList');
+                modelList.innerHTML = models.map(m => `
+                    <div class="model-item">
+                        <span class="model-name">${m.name}</span>
+                        <span class="model-status ${m.loaded ? 'loaded' : ''}">${m.loaded ? 'Loaded' : 'Available'}</span>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Failed to load models:', err);
+            }
+        }
+        
+        async function testModel() {
+            try {
+                const response = await fetch('/admin-api/test', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({prompt: 'Hello'})
+                });
+                const data = await response.json();
+                showSuccess('Model test passed: ' + (data.response ? data.response.substring(0, 50) + '...' : 'OK'));
+            } catch (err) {
+                showError('Test failed: ' + err.message);
+            }
+        }
+        
+        function clearCache() {
+            if (confirm('Clear model cache?')) {
+                fetch('/admin-api/cache/clear', {method: 'POST'})
+                    .then(() => showSuccess('Cache cleared'))
+                    .catch(err => showError('Failed: ' + err.message));
+            }
+        }
+        
+        function showSettings() {
+            alert('Settings panel coming soon');
+        }
+        
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+            setTimeout(() => {errorMsg.style.display = 'none'}, 5000);
+        }
+        
+        function showSuccess(message) {
+            successMsg.textContent = message;
+            successMsg.style.display = 'block';
+            setTimeout(() => {successMsg.style.display = 'none'}, 5000);
+        }
+        
+        window.addEventListener('load', () => {
+            const savedUser = sessionStorage.getItem('admin_user');
+            if (savedUser) {
+                currentUser = savedUser;
+                document.getElementById('adminUser').textContent = savedUser;
+                loginContainer.style.display = 'none';
+                adminPanel.style.display = 'block';
+                loadDashboard();
+            }
+        });
+    </script>
+</body>
+</html>

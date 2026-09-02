@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create account</title>
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      min-height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f6f7f9;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+      color: #111827;
+    }
+    .card {
+      width: 100%;
+      max-width: 420px;
+      margin: 24px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 28px 32px 32px;
+      box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 22px;
+      background: #f3f4f6;
+      border-radius: 12px;
+      padding: 4px;
+    }
+    .tabs a {
+      flex: 1;
+      text-align: center;
+      text-decoration: none;
+      color: #6b7280;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 10px;
+      border-radius: 9px;
+    }
+    .tabs a.active {
+      background: #fff;
+      color: #111827;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+    h1 {
+      font-size: 24px;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+    }
+    p.sub {
+      color: #6b7280;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    input {
+      width: 100%;
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+    input:focus {
+      outline: none;
+      background: #fff;
+      border-color: #9ca3af;
+      box-shadow: 0 0 0 3px #e5e7eb;
+    }
+    #codeBox { display: none; }
+    button {
+      width: 100%;
+      margin-top: 8px;
+      background: #111;
+      color: #fff;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #1f2937; }
+    a.back {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      color: #6b7280;
+      font-size: 13px;
+      text-decoration: none;
+    }
+    a.back:hover { color: #111827; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="tabs">
+      <a class="active" href="/account-register">Create account</a>
+      <a href="/account-register/login">Login</a>
+    </div>
+    <h1>Create account</h1>
+    <p class="sub">Join InferForge to start chatting.</p>
+    <form id="registerForm" name="create-account" method="POST" action="/__forms.html" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="create-account">
+      <input type="hidden" name="subject" value="InferForge account">
+      <p style="display:none"><label>Leave empty<input name="bot-field"></label></p>
+      <label for="name">Name</label>
+      <input id="name" name="name" type="text" autocomplete="name" required>
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" required>
+      <div id="codeBox">
+        <label for="code">enter code that was given to you.</label>
+        <input id="code" name="code" type="text" autocomplete="one-time-code">
+      </div>
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="new-password" required>
+      <label for="confirm">Confirm password</label>
+      <input id="confirm" type="password" autocomplete="new-password" required>
+      <button type="submit">Create account</button>
+    </form>
+    <a class="back" href="/">Back to chat</a>
+  </div>
+  <script>
+    const emailEl = document.getElementById("email");
+    const codeBox = document.getElementById("codeBox");
+    const form = document.getElementById("registerForm");
+    let lastEmail = "";
+    function validEmail(value) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    }
+    function revealCode() {
+      const email = emailEl.value.trim();
+      if (!validEmail(email)) return;
+      codeBox.style.display = "block";
+      if (email.toLowerCase() === lastEmail) return;
+      lastEmail = email.toLowerCase();
+      fetch("/api/register/send-code", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email })
+      }).catch(function () {});
+    }
+    emailEl.addEventListener("input", revealCode);
+    emailEl.addEventListener("change", revealCode);
+    emailEl.addEventListener("blur", revealCode);
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      localStorage.setItem("inferforge_hide_create", "1");
+      const body = new URLSearchParams({
+        "form-name": "create-account",
+        name: document.getElementById("name").value,
+        email: emailEl.value,
+        code: document.getElementById("code").value,
+        subject: "InferForge account"
+      });
+      fetch("/__forms.html", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString()
+      }).finally(function () {
+        window.location.assign("/");
+      });
+    });
+    const createTab = document.querySelector('.tabs a[href="/account-register"]');
+    if (localStorage.getItem("inferforge_hide_create") === "1" && createTab) {
+      createTab.style.display = "none";
+    }
+    if (createTab) {
+      createTab.addEventListener("click", function () {
+        localStorage.setItem("inferforge_hide_create", "1");
+        createTab.style.display = "none";
+      });
+    }
+  </script>
+</body>
+</html>

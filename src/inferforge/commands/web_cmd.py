@@ -428,7 +428,13 @@ def serve_command(port: int, host: str) -> None:
                 path = path.replace("//", "/")
             trimmed = path.rstrip("/") or "/"
             if trimmed.startswith("/api"):
-                self._proxy_ollama()
+                self._handle_inference()
+                return
+            if trimmed == "/admin":
+                self._send_admin_panel()
+                return
+            if trimmed.startswith("/admin-api/"):
+                self._send_json({"error": "Unauthorized"}, 401)
                 return
             if trimmed == "/favicon.ico":
                 self._send_favicon()
@@ -459,8 +465,20 @@ def serve_command(port: int, host: str) -> None:
             if parsed.path == "/api/register/send-code":
                 self._send_register_code()
                 return
+            if parsed.path == "/admin-api/login":
+                self._admin_login()
+                return
+            if parsed.path == "/admin-api/test":
+                self._admin_test_model()
+                return
+            if parsed.path == "/admin-api/cache/clear":
+                self._admin_clear_cache()
+                return
+            if parsed.path.startswith("/admin-api/"):
+                self._send_json({"error": "Unauthorized"}, 401)
+                return
             if parsed.path.startswith("/api/"):
-                self._proxy_ollama()
+                self._handle_inference()
                 return
             try:
                 self.send_error(404)
@@ -523,6 +541,68 @@ def serve_command(port: int, host: str) -> None:
             except Exception:
                 pass
             self._send_bytes(b'{"ok":true}', "application/json")
+
+        def _send_json(self, data: dict, status: int = 200) -> None:
+            payload = json.dumps(data).encode("utf-8")
+            self._send_bytes(payload, "application/json", status)
+
+        def _send_admin_panel(self):
+            path = Path(__file__).with_name("admin_panel.html")
+            data = path.read_text(encoding="utf-8").encode("utf-8")
+            self._send_bytes(data, "text/html; charset=utf-8")
+
+        def _admin_login(self):
+            from inferforge.admin.auth import AdminAuth
+            payload = self._read_json()
+            username = str(payload.get("username", "")).strip()
+            password = str(payload.get("password", "")).strip()
+            
+            auth = AdminAuth()
+            if auth.check_credentials(username, password):
+                self._send_json({"ok": True, "user": username})
+            else:
+                self._send_json({"ok": False, "message": "Invalid credentials"}, 401)
+
+        def _admin_test_model(self):
+            from inferforge.engine.inferforge_engine import get_model_manager
+            payload = self._read_json()
+            prompt = str(payload.get("prompt", "Hello")).strip()
+            
+            manager = get_model_manager()
+            result = manager.generate(prompt)
+            self._send_json(result)
+
+        def _admin_clear_cache(self):
+            from inferforge.engine.inferforge_engine import get_model_manager
+            manager = get_model_manager()
+            manager.engines.clear()
+            self._send_json({"ok": True, "message": "Cache cleared"})
+
+        def _admin_get_models(self):
+            from inferforge.engine.inferforge_engine import get_model_manager
+            manager = get_model_manager()
+            models = manager.list_models()
+            self._send_json({"models": models})
+
+        def _handle_inference(self):
+            if self.command == "POST":
+                from inferforge.engine.inferforge_engine import get_model_manager
+                payload = self._read_json()
+                prompt = payload.get("prompt", "")
+                model = payload.get("model", "inferforge-beta")
+                
+                manager = get_model_manager()
+                result = manager.generate(prompt, model)
+                self._send_json(result)
+            elif self.command == "GET":
+                parsed = urlparse(self.path)
+                if parsed.path == "/api/tags":
+                    from inferforge.engine.inferforge_engine import get_model_manager
+                    manager = get_model_manager()
+                    models = manager.list_models()
+                    self._send_json({"models": models})
+                else:
+                    self._send_json({"error": "Not found"}, 404)
 
         def _send_favicon(self):
             svg = (

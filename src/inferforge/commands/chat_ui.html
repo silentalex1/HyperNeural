@@ -398,7 +398,7 @@
         const text = data.response || data.text || "No response from model";
         bubble.innerHTML = '<div class="reply"><p>' + text.replace(/\n/g, '<br>') + '</p></div>';
       } catch (error) {
-        bubble.innerHTML = '<div class="reply"><p>Error: Unable to reach model. Make sure Ollama is running at 127.0.0.1:11434</p></div>';
+        bubble.innerHTML = '<div class="reply"><p>Error: Unable to process request. ' + error.message + '</p></div>';
       }
       
       busy = false;
